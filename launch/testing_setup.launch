@@ -18,4 +18,7 @@
         <rosparam command="load" file="$(find robot_localization)/params/seastar.yaml" />
         <remap from="odometry/filtered" to="odom/filtered" />
     </node>
+
+    <!-- Begin usb_cam for recording video of testing -->
+    <include file="$(find usb_cam)/launch/usb_cam-test.launch" />
 </launch>
