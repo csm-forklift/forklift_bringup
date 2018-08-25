@@ -1,0 +1,18 @@
+<!-- Launch file for converting rosbags to remove topics -->
+<launch>
+    <!-- name of files -->
+    <arg name="ifile" default="~/bagfiles/input.bag" />
+    <arg name="ofile" default="~/bagfiles/output.bag" />
+
+    <!-- Begin recording to bag file -->
+    <node pkg="rosbag" type="record" name="rosbag_recorder" args="-a -O $(arg ofile)" output="screen"/>
+
+    <!-- Begin playing bag file to copy -->
+    <node pkg="rosbag" type="play" name="rosbag_player" args="$(arg ifile)" output="screen"/>
+
+    <!--
+    Converting rosbag files to eliminate topics
+    run:
+    rosbag filter [input_file.bag] [output_file.bag] "topic == '/[topic_name1]' or topic == '/[topic_name2]' or ..."
+    -->
+</launch>
