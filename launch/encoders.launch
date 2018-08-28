@@ -1,15 +1,13 @@
-<!-- Starts up all nodes for running the robot -->
+<!-- Launch file for only running the encoders -->
 <launch>
     <!-- Prints output messages to screen for all nodes -->
     <arg name="debug" default="false" />
-    <arg name="use_camera" default="true" />
-    <arg name="use_encoders" default="true" />
-    <arg name="use_imu" default="true" />
 
     <!-- Start generating transforms -->
     <include file="$(find setup_tf)/launch/setup_tf.launch">
-	    <arg name="debug" value="$(arg debug)" />
+	<arg name="debug" value="$(arg debug)" />
     </include>
+
     <!-- Load IMU Calibration Parameters -->
     <group ns="imu/calibration">
     	<rosparam file="$(find encoders)/config/imu_calibration.yaml" command="load" />
@@ -23,19 +21,7 @@
     </node>
 
     <!-- Begin nodes for converting sensor reading (encoders and IMU) -->
-    <node if="$(arg use_encoders)" pkg="encoders" name="encoder_odom" type="encoder_odom.py" respawn="true" />
-    <node if="$(arg use_imu)" pkg="encoders" name="imu_read" type="imu_read.py" respawn="true" />
-
-    <!-- Camera Node -->
-    <group if="$(arg use_camera)">
-        <include file="$(find astra_launch)/launch/astra.launch" />
-        <group if="$(arg debug)">
-            <node pkg="pose_estimation" name="camera_pose" type="camera_pose" respawn="true" output="screen" />
-        </group>
-        <group unless="$(arg debug)">
-            <node pkg="pose_estimation" name="camera_pose" type="camera_pose" respawn="true" />
-        </group>
-    </group>
+    <node pkg="encoders" name="encoder_odom" type="encoder_odom.py" respawn="true" />
 
     <!-- Robot localization -->
     <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true">

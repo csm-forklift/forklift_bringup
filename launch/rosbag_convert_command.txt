@@ -1,0 +1,1 @@
+rosbag filter hl_90_8x6ft_all_2.bag hl_90_8x6ft_2.bag "topic == '/imu/data' or topic == '/imu/mag' or topic == '/imu/rpy' or topic == '/enc/odom' or topic == '/enc/wheel_left_ticks' or topic == '/enc/wheel_right_ticks' or topic == '/camera_pose/pose'"

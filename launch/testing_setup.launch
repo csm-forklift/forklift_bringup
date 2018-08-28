@@ -1,0 +1,24 @@
+<launch>
+    <!-- Start generating transforms -->
+    <include file="$(find setup_tf)/launch/setup_tf.launch" />
+
+    <!-- Begin serial node for Arduino -->
+    <!-- get port Arduino is connected to -->
+    <arg name="port" default="/dev/ttyACM0" />
+    <node pkg="rosserial_python" name="serial_node" type="serial_node.py" respawn="true">
+        <param name="port" value="$(arg port)" />
+    </node>
+
+    <!-- Begin nodes for converting sensor reading (encoders and IMU) -->
+    <node pkg="encoders" name="encoder_odom" type="encoder_odom.py" respawn="true" />
+    <node pkg="encoders" name="imu_read" type="imu_read.py" respawn="true" />
+
+    <!-- Robot localization -->
+    <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true">
+        <rosparam command="load" file="$(find robot_localization)/params/seastar.yaml" />
+        <remap from="odometry/filtered" to="odom/filtered" />
+    </node>
+
+    <!-- Begin usb_cam for recording video of testing -->
+    <include file="$(find usb_cam)/launch/usb_cam-test.launch" />
+</launch>
