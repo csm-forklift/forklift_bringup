@@ -10,6 +10,6 @@
     </node>
 
     <!-- Begin nodes for converting sensor reading (encoders and IMU) -->
-    <node pkg="encoders" name="encoder_odom" type="encoder_odom.py" respawn="true" />
+    <node pkg="encoders" name="encoder_odom" type="encoder_odom.py" respawn="true" output="screen"/>
     <node pkg="encoders" name="imu_read" type="imu_read.py" respawn="true" />
 </launch>
