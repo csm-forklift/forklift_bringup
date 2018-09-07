@@ -1,0 +1,29 @@
+<!-- Starts up all nodes for running the robot -->
+<launch>
+    <!-- Prints output messages to screen for all nodes -->
+    <arg name="debug" default="true" />
+
+    <!-- set names of sensors -->
+    <arg name="camera" default="camera1" />
+
+    <!-- Start generating transforms -->
+    <include file="$(find setup_tf)/launch/setup_tf.launch">
+	    <arg name="debug" value="$(arg debug)" />
+    </include>
+
+    <!-- Load Camera Calibrations -->
+    <group ns="camera1/calibration_rgb">
+        <rosparam file="$(find cameras)/calibrations/camera1_rgb.yaml" command="load" />
+    </group>
+
+    <!-- Camera Node -->
+    <include file="$(find astra_launch)/launch/astra.launch">
+        <arg name="camera" value="$(arg camera)" />
+    </include>
+    <node pkg="cameras" name="camera_pose" type="camera_pose" respawn="true" output="screen">
+        <remap from="/camera/rgb/image_raw" to="/$(arg camera)/rgb/image_raw" />
+        <param name="debug" value="$(arg debug)" />
+        <param name="display_image" value="true" />
+        <param name="camera" value="$(arg camera)" />
+    </node>
+</launch>

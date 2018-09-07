@@ -9,9 +9,9 @@
         <param name="port" value="$(arg port)" />
     </node>
 
-    <!-- Begin nodes for converting sensor reading (encoders and IMU) -->
-    <node pkg="encoders" name="encoder_odom" type="encoder_odom.py" respawn="true" />
-    <node pkg="encoders" name="imu_read" type="imu_read.py" respawn="true" />
+    <!-- Begin nodes for converting sensor reading (Encoders and IMU) -->
+    <node pkg="sensors" name="encoder_odom" type="encoder_odom.py" respawn="true" />
+    <node pkg="sensors" name="imu_read" type="imu_read.py" respawn="true" />
 
     <!-- Robot localization -->
     <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true">

@@ -1,9 +1,9 @@
 <launch>
-    <arg name="debug" default="false" />    
-
+    <arg name="debug" default="false" />
+    
     <!-- Start generating transforms -->
     <include file="$(find setup_tf)/launch/setup_tf.launch">
-	<arg name="debug" value="$(arg debug)" />
+	    <arg name="debug" value="$(arg debug)" />
     </include>
 
     <!-- Robot localization -->
