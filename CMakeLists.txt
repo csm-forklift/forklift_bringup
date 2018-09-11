@@ -8,7 +8,7 @@ project(forklift_bringup)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  encoders
+  sensors
   roscpp
   rospy
   setup_tf
@@ -106,7 +106,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES forklift_bringup
-#  CATKIN_DEPENDS encoders roscpp rospy setup_tf
+#  CATKIN_DEPENDS sensors roscpp rospy setup_tf
 #  DEPENDS system_lib
 )
 
