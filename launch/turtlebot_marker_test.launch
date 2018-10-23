@@ -6,49 +6,41 @@
 
     <!-- Select sensors to use -->
     <arg name="use_camera" default="true" />
-    <arg name="use_encoders" default="false" />
-    <arg name="use_imu" default="false" />
 
     <!-- set names of sensors -->
     <arg name="camera" default="astrapro" />
-    <arg name="imu" default="imu" />
-    <arg name="laser_scanner" default="laser_scanner1" />
 
-    <!-- Start generating transforms -->
-    <!--
-    <include file="$(find setup_tf)/launch/setup_tf.launch">
-	    <arg name="debug" value="$(arg debug)" />
-    </include>
-    -->
-    <!-- Load IMU Calibration Parameters -->
-    <group ns="imu/calibration">
-    	<rosparam file="$(find sensors)/config/imu_calibration.yaml" command="load" />
-    </group>
+    <!-- Joystick Control -->
+    <!--  smooths inputs from cmd_vel_mux/input/teleop_raw to cmd_vel_mux/input/teleop -->
+    <node pkg="nodelet" type="nodelet" name="teleop_velocity_smoother" args="load yocs_velocity_smoother/VelocitySmootherNodelet mobile_base_nodelet_manager">
+      <rosparam file="$(find turtlebot_bringup)/param/defaults/smoother.yaml" command="load"/>
+      <remap from="teleop_velocity_smoother/smooth_cmd_vel" to="mobile_base/commands/velocity"/>
 
-    <!-- Begin serial node for Arduino -->
-    <!-- get port Arduino is connected to -->
-    <!--
-    <arg name="port" default="/dev/ttyACM0" />
-    <node pkg="rosserial_python" name="serial_node" type="serial_node.py" respawn="true">
-        <param name="port" value="$(arg port)" />
+      <!-- Robot velocity feedbacks; use the one configured as base default -->
+      <remap from="teleop_velocity_smoother/odometry" to="odom"/>
+      <remap from="teleop_velocity_smoother/robot_cmd_vel" to="mobile_base/commands/velocity"/>
     </node>
-    -->
 
-    <!-- Begin nodes for converting sensor reading (encoders and IMU) -->
-    <node if="$(arg use_encoders)" pkg="sensors" name="encoder_odom" type="encoder_odom.py" respawn="true" />
-    <node if="$(arg use_imu)" pkg="sensors" name="imu_read" type="imu_read.py" respawn="true" />
+    <node pkg="turtlebot_teleop" type="turtlebot_teleop_joy" name="turtlebot_teleop_joystick">
+      <param name="scale_angular" value="1.5"/>
+      <param name="scale_linear" value="0.5"/>
+      <remap from="turtlebot_teleop_joystick/cmd_vel" to="teleop_velocity_smoother/raw_cmd_vel"/>
+    </node>
+
+    <node pkg="joy" type="joy_node" name="joystick"/>
 
     <!-- start up turtlebot -->
-    <include file="$(find turtlebot_bringup)/launch/minimal.launch" />
+    <!-- <include file="$(find turtlebot_bringup)/launch/minimal.launch" /> -->
+    <include file ="$(find kobuki_node)/launch/minimal.launch"/>
 
-    <!-- Load Camera Calibrations -->
-    <group ns="camera1/calibration_rgb">
-        <rosparam file="$(find cameras)/calibrations/$(arg camera)_rgb.yaml" command="load" />
-    </group>
+    <!-- Start generating transforms -->
+    <include file="$(find setup_tf)/launch/setup_tf_marker_test.launch">
+	    <arg name="debug" value="$(arg debug)" />
+    </include>
 
     <!-- Camera Node -->
     <group if="$(arg use_camera)">
-        <include file="$(find cameras)/launch/turtlebot_test.launch">
+        <include file="$(find cameras)/launch/camera_marker_test.launch">
             <arg name="camera" value="$(arg camera)" />
             <arg name="display_image" value="$(arg display_image)" />
         </include>
@@ -56,7 +48,7 @@
 
     <!-- Robot localization -->
     <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true">
-        <rosparam command="load" file="$(find robot_localization)/params/seastar.yaml" />
+        <rosparam command="load" file="$(find robot_localization)/params/kobuki.yaml" />
         <remap from="odometry/filtered" to="odom/filtered" />
     </node>
 
