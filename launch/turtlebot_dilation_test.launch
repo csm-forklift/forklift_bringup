@@ -1,0 +1,67 @@
+<!-- Starts up all nodes for running the robot -->
+<launch>
+    <!-- Prints output messages to screen for all nodes -->
+    <arg name="debug" default="false" />
+    <arg name="display_image" default="false" />
+
+    <!-- Select sensors to use -->
+    <arg name="use_camera" default="true" />
+    <arg name="use_lidar" default="true" />
+
+    <!-- set names of sensors -->
+    <arg name="camera" default="astrapro" />
+    <arg name="lidar" default="os1" />
+
+    <!-- Joystick Control (I had to keep grabbing the raw launch file content
+         until I finaly had a successful remap to
+         'mobile_base/commands/velocity') -->
+    <!--  smooths inputs from cmd_vel_mux/input/teleop_raw to cmd_vel_mux/input/teleop -->
+    <node pkg="nodelet" type="nodelet" name="teleop_velocity_smoother" args="load yocs_velocity_smoother/VelocitySmootherNodelet mobile_base_nodelet_manager">
+      <rosparam file="$(find turtlebot_bringup)/param/defaults/smoother.yaml" command="load"/>
+      <remap from="teleop_velocity_smoother/smooth_cmd_vel" to="mobile_base/commands/velocity"/>
+
+      <!-- Robot velocity feedbacks; use the one configured as base default -->
+      <remap from="teleop_velocity_smoother/odometry" to="odom"/>
+      <remap from="teleop_velocity_smoother/robot_cmd_vel" to="mobile_base/commands/velocity"/>
+    </node>
+
+    <node pkg="turtlebot_teleop" type="turtlebot_teleop_joy" name="turtlebot_teleop_joystick">
+      <param name="scale_angular" value="1.5"/>
+      <param name="scale_linear" value="0.5"/>
+      <remap from="turtlebot_teleop_joystick/cmd_vel" to="teleop_velocity_smoother/raw_cmd_vel"/>
+    </node>
+
+    <node pkg="joy" type="joy_node" name="joystick"/>
+
+    <!-- start up turtlebot -->
+    <!-- <include file="$(find turtlebot_bringup)/launch/minimal.launch" /> -->
+    <include file ="$(find kobuki_node)/launch/minimal.launch"/>
+
+    <!-- Start generating transforms -->
+    <include file="$(find setup_tf)/launch/setup_tf_dilation_test.launch">
+	    <arg name="debug" value="$(arg debug)" />
+    </include>
+
+    <!-- Camera Node -->
+    <group if="$(arg use_camera)">
+        <include file="$(find cameras)/launch/camera_marker_test.launch">
+            <arg name="camera" value="$(arg camera)" />
+            <arg name="display_image" value="$(arg display_image)" />
+        </include>
+    </group>
+
+    <!-- Lidar Node -->
+    <group if="$(arg use_lidar)">
+        <include file="$(find ouster_ros)/launch/lidar.launch" />
+    </group>
+
+    <!-- Start mapping nodes -->
+    <include file="$(find mapping)/launch/dilation_map_test.launch" />
+
+    <!-- Robot localization -->
+    <!--node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true">
+        <rosparam command="load" file="$(find robot_localization)/params/kobuki.yaml" />
+        <remap from="odometry/filtered" to="odom/filtered" />
+    </node-->
+
+</launch>
