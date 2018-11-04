@@ -5,7 +5,7 @@
     <arg name="display_image" default="false" />
 
     <!-- Select sensors to use -->
-    <arg name="use_camera" default="false" />
+    <arg name="use_camera" default="true" />
     <arg name="use_lidar" default="true" />
 
     <!-- set names of sensors -->
@@ -56,8 +56,7 @@
     </group>
 
     <!-- Start mapping nodes -->
-    <include file="$(find mapping)/launch/dilation_map_test.launch" />
-
+    <include file="$(find mapping)/launch/mapmerge_test.launch" />
     <!-- Robot localization -->
     <!--node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true">
         <rosparam command="load" file="$(find robot_localization)/params/kobuki.yaml" />
