@@ -5,16 +5,12 @@
     <arg name="display_image" default="false" />
 
     <!-- Select sensors to use -->
-    <arg name="use_camera" default="false" />
-    <arg name="use_lidar" default="true" />
+    <arg name="use_camera" default="true" />
 
     <!-- set names of sensors -->
     <arg name="camera" default="astrapro" />
-    <arg name="lidar" default="os1" />
 
-    <!-- Joystick Control (I had to keep grabbing the raw launch file content
-         until I finaly had a successful remap to
-         'mobile_base/commands/velocity') -->
+    <!-- Joystick Control -->
     <!--  smooths inputs from cmd_vel_mux/input/teleop_raw to cmd_vel_mux/input/teleop -->
     <node pkg="nodelet" type="nodelet" name="teleop_velocity_smoother" args="load yocs_velocity_smoother/VelocitySmootherNodelet mobile_base_nodelet_manager">
       <rosparam file="$(find turtlebot_bringup)/param/defaults/smoother.yaml" command="load"/>
@@ -33,48 +29,27 @@
 
     <node pkg="joy" type="joy_node" name="joystick"/>
 
-    <!-- start up turtlebot -->
+    <!-- Start up turtlebot -->
     <!-- <include file="$(find turtlebot_bringup)/launch/minimal.launch" /> -->
     <include file ="$(find kobuki_node)/launch/minimal.launch"/>
 
     <!-- Start generating transforms -->
-    <include file="$(find setup_tf)/launch/setup_tf_obstacle_test.launch">
+    <include file="$(find setup_tf)/launch/setup_tf_cylinder_test.launch">
 	    <arg name="debug" value="$(arg debug)" />
     </include>
 
     <!-- Camera Node -->
     <group if="$(arg use_camera)">
-        <include file="$(find cameras)/launch/camera_marker_test.launch">
+        <include file="$(find cameras)/launch/camera_cylinder_test.launch">
             <arg name="camera" value="$(arg camera)" />
             <arg name="display_image" value="$(arg display_image)" />
         </include>
     </group>
-
-    <!-- Lidar Node -->
-    <group if="$(arg use_lidar)">
-        <include file="$(find ouster_ros)/launch/lidar.launch" />
-    </group>
-
-    <!-- Start mapping nodes -->
-    <include file="$(find mapping)/launch/obstacle_map_test.launch" />
 
     <!-- Robot localization -->
     <!-- <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true">
         <rosparam command="load" file="$(find robot_localization)/params/kobuki.yaml" />
         <remap from="odometry/filtered" to="odom/filtered" />
     </node> -->
-
-    <!-- Path Generation and Velocity Control -->
-    <node pkg="robust_navigation" type="path_controller_node" name="path_controller_node" respawn="true" output="screen">
-        <remap from="cmd_vel_mux/input/teleop" to="mobile_base/commands/velocity" />
-    </node>
-    <node pkg="robust_navigation" type="planner_node" name="planner_node" respawn="true" output="screen">
-    </node>
-    <node pkg="robust_navigation" type="smoother_node" name="smoother_node" respawn="true" output="screen">
-    </node>
-
-    <!-- Start control panel -->
-    <node pkg="control_panel" type="control_panel_node" name="control_panel_node" respawn="true" />
-    <node pkg="rqt_gui" type="rqt_gui" name="rqt" output="screen" />
 
 </launch>
