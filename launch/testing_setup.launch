@@ -1,3 +1,4 @@
+<!-- Launch file for running a test -->
 <launch>
     <!-- Start generating transforms -->
     <include file="$(find setup_tf)/launch/setup_tf.launch" />
