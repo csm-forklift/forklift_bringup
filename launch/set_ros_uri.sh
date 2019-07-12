@@ -17,5 +17,5 @@ if [ $SET_ROS_IP = true ]; then
     export ROS_IP=$IP_MESSAGE
 else
     unset ROS_MASTER_URI
-    unset ROS_IP    
+    unset ROS_IP
 fi
