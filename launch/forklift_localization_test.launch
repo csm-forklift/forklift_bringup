@@ -1,5 +1,8 @@
 <launch>
-    <include file="$(find ouster_ros)/launch/lidar2.launch" />
+
+    <!-- Needs to run the 'segmented' version of the lidar launch file so that
+         points are published as fast as possible -->
+    <include file="$(find ouster_ros)/launch/lidar2_segmented.launch" />
     <node pkg="ouster_ros" type="lidar_filter_node" name ="lidar_filter_node" respawn = "true"/>
 
     <node pkg="tf" type="static_transform_publisher" name="os1_broadcaster"
