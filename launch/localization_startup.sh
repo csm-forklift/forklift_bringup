@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+# Items to edit for specific situation
+# ~/cartographer_latest/src/cartographer_ros/cartographer_ros/launch/my_robot_2d_localization.launch
+# ~/cartographer_latest/src/cartographer_ros/cartographer_ros/configuration_files/realtime_2d.lua
 source ~/cartographer_latest/devel_isolated/setup.bash
 roslaunch cartographer_ros my_robot_2d_localization_cut.launch &
 
