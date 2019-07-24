@@ -20,22 +20,22 @@
     <arg name="debug_grasping" default="false"/>
     <arg name="port_clamp" default="/dev/ttyACM2"/>
     <arg name="clamp_scale" default="0.7"/>
-    <arg name="target_x" default="0.0"/>
+    <arg name="target_x" default="1.0"/>
     <arg name="target_y" default="0.0"/>
     <arg name="target_frame" default="/odom"/>
     <arg name="grasp_angle" default="0.7854"/>
-    <arg name="grasp_plate_offset_x" default="0.36"/>
-    <arg name="grasp_plate_offset_y" default="-0.19"/>
+    <arg name="grasp_plate_offset_x" default="1.37"/>
+    <arg name="grasp_plate_offset_y" default="-0.52"/>
     <arg name="angle_tolerance" default="0.01"/>
     <arg name="K_angle" default="10.0"/>
     <arg name="K_linear" default="1.0"/>
     <arg name="max_velocity" default="0.25"/>
-    <arg name="approach_offset" default="2.0"/>
+    <arg name="approach_offset" default="3.0"/>
     <arg name="approach_tolerance" default="0.001"/>
     <arg name="backout_distance" default="1.0"/>
     <!-- Cylinder Detection Parameters -->
     <arg name="sensor_frame" default="/lidar1_link"/>
-    <arg name="point_cloud_topic" default="os1_node1/points"/>
+    <arg name="point_cloud_topic" default="/os1_node1/points"/>
     
     <!--==================-->
     <!-- Setup Transforms -->
@@ -54,16 +54,13 @@
           2) $ roslaunch sensors localization_velocity_imu.launch (reads imu and
                canbus data)
     --> 
-    <!-- Steering Feedback -->
-    <include file="$(find sensors)/launch/localization_steer.launch">
-        <arg name="port_steering" value="$(arg port_steering)"/>
-    </include>
-    
     <!-- Lidars -->
     <!-- Needs to run the 'segmented' version of the lidar launch file so that
          points are published as fast as possible -->
     <include file="$(find ouster_ros)/launch/lidar0_segment.launch"/>
-    <include file="$(find ouster_ros)/launch/lidar1.launch"/>
+    <include file="$(find ouster_ros)/launch/lidar1.launch">
+        <arg name="dnsmasq" value="false"/>
+    </include>
     <!-- Filters point cloud to only view rear 180 deg -->
     <node pkg="ouster_ros" type="lidar_filter_node" name ="lidar_filter_node" respawn = "true"/>
     
@@ -89,6 +86,7 @@
         <arg name="manual_deadman" value="$(arg manual_deadman)"/>
         <arg name="autonomous_deadman" value="$(arg autonomous_deadman)"/>
         <arg name="timeout" value="$(arg timeout)"/>
+        <arg name="port_steering" value="$(arg port_steering)"/>
         <arg name="port_accelerator_encoder" value="$(arg port_accelerator_encoder)"/>
     </include>
     
@@ -110,7 +108,7 @@
         <arg name="grasp_plate_offset_x" value="$(arg grasp_plate_offset_x)"/>
         <arg name="grasp_plate_offset_y" value="$(arg grasp_plate_offset_y)"/>
         <arg name="approach_offset" value="$(arg approach_offset)"/>
-        <arg name="approach_tolerance" value="$(arg appraoch_tolerance)"/>
+        <arg name="approach_tolerance" value="$(arg approach_tolerance)"/>
         <arg name="backout_distance" value="$(arg backout_distance)"/>
         <arg name="manual_deadman" value="$(arg manual_deadman)"/>
         <arg name="autonomous_deadman" value="$(arg autonomous_deadman)"/>

@@ -29,7 +29,7 @@
     <!-- Needs to run the 'segmented' version of the lidar launch file so that
          points are published as fast as possible -->
     <include file="$(find ouster_ros)/launch/lidar0_segment.launch" />
-    <node pkg="ouster_ros" type="lidar_filter_node" name ="lidar_filter_node" respawn = "true"/>
+    <node pkg="ouster_ros" type="lidar_angle" name ="lidar_angle" respawn = "true"/>
     
     <!--===========================-->
     <!-- Cartographer Localization -->
@@ -39,10 +39,8 @@
     <!--=============================-->
     <!-- Mapping and Path Generation -->
     <!--=============================-->
-     <node pkg="tf" type="static_transform_publisher" name="map_broadcaster"
+    <node pkg="tf" type="static_transform_publisher" name="map_broadcaster"
         args="0 0 0 0 0 0 1 world map 50" />
-    <node pkg="tf" type="static_transform_publisher" name="odom_broadcaster"
-        args="0 0 0 0 0 0 1 map odom 50" />
     <include file="$(find mapping)/launch/forklift_obstacle_map_test.launch" />
     
     <node pkg="robust_navigation" type="planner_node" name="planner_node" respawn="true">
