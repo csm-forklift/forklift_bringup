@@ -17,17 +17,17 @@
     <!-- Joystick -->
     <arg name="joy_dev" default="/dev/input/js0"/>
     <!-- Grasping Control Parameters -->
-    <arg name="debug_grasping" default="false"/>
+    <arg name="debug_grasping" default="true"/>
     <arg name="port_clamp" default="/dev/ttyACM2"/>
-    <arg name="clamp_scale" default="0.7"/>
-    <arg name="target_x" default="1.0"/>
+    <arg name="clamp_scale" default="0.5"/>
+    <arg name="target_x" default="3.6"/>
     <arg name="target_y" default="0.0"/>
     <arg name="target_frame" default="/odom"/>
     <arg name="grasp_angle" default="0.7854"/>
     <arg name="grasp_plate_offset_x" default="1.37"/>
     <arg name="grasp_plate_offset_y" default="-0.52"/>
     <arg name="angle_tolerance" default="0.01"/>
-    <arg name="K_angle" default="10.0"/>
+    <arg name="K_angle" default="1.0"/>
     <arg name="K_linear" default="1.0"/>
     <arg name="max_velocity" default="0.25"/>
     <arg name="approach_offset" default="3.0"/>
@@ -68,7 +68,11 @@
     <!-- Cartographer Localization -->
     <!--===========================-->
     <node pkg="forklift_bringup" name="localization_startup" type="localization_startup.sh" output="screen"/>
-    
+    <!--
+    <node pkg="tf" type="static_transform_publisher" name="odom_broadcaster"
+        args="0 0 0 0 0 0 1 odom base_link 50" />
+    -->    
+
     <!--================-->
     <!-- Start Joystick -->
     <!--================-->
@@ -89,6 +93,19 @@
         <arg name="port_steering" value="$(arg port_steering)"/>
         <arg name="port_accelerator_encoder" value="$(arg port_accelerator_encoder)"/>
     </include>
+    
+    <!--==========================-->
+    <!-- Maneuver Path Generation -->
+    <!--==========================-->
+    <!-- Required for the '/maneuver_path/optimize_maneuver' service -->
+    <node pkg="grasping" type="maneuver_path.py" name="maneuver_path" output="screen">
+        <remap from="/map" to="/obstacle_map"/>
+        <remap from="/maneuver_path/path1" to="/maneuver_path1"/>
+        <remap from="/maneuver_path/path2" to="/maneuver_path2"/>
+    </node>
+    <node pkg="grasping" type="approach_path" name="approach_path">
+        <remap from="/approach_path/path" to="/approach_path"/>
+    </node>
     
     <!--============================-->
     <!-- Start Grasping Controllers -->
