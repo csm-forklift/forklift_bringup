@@ -1,9 +1,24 @@
+<!-- Used for testing motion control for the obstacle avoidance path -->
 <launch>
 
     <!--==========================-->
     <!-- Arguments and Parameters -->
     <!--==========================-->
+    <!-- Generan -->
+    <arg name="debug" default="false"/>
     <arg name="port_steering" default="/dev/ttyACM0"/>
+    <arg name="port_accelerator_encoder" default="/dev/ttyACM1"/>
+    <arg name="clamp_scale" default="0.5"/>
+    <arg name="manual_deadman" default="4"/>
+    <arg name="autonomous_deadman" default="5"/>
+    <arg name="timeout" default="1.0"/> <!-- seconds -->
+    <!-- Joystick -->
+    <arg name="joy_dev" default="/dev/input/js0"/>
+    <!-- Velocity Controller -->
+    <arg name="output_max" default="200"/> <!-- see accelerator arduino file -->
+    <arg name="output_min" default="15"/>
+    <arg name="max_angle" default="1.0472"/> <!-- 60deg -->
+    <arg name="min_angle" default="-1.0472"/>
     
     <!--==================-->
     <!-- Setup Transforms -->
@@ -20,11 +35,6 @@
           2) $ roslaunch sensors localization_velocity_imu.launch (reads imu and
                canbus data)
     --> 
-    <!-- Steering Feedback -->
-    <include file="$(find sensors)/launch/localization_steer.launch">
-        <arg name="port_steering" value="$(arg port_steering)"/>
-    </include>
-    
     <!-- Lidars -->
     <!-- Needs to run the 'segmented' version of the lidar launch file so that
          points are published as fast as possible -->
@@ -46,6 +56,71 @@
     <node pkg="robust_navigation" type="planner_node" name="planner_node" respawn="true">
         <remap from="/path" to="/obstacle_avoidance_path"/>
         <remap from="/map" to="/obstacle_map"/>
+    </node>
+    
+    <!-- DEBUG: Create test map -->
+    <!--
+    <node pkg="motion_testing" type="test_map_generator.py" name="test_map_generator">
+        <remap from="/test_map_generator/map" to="/obstacle_map"/>
+    </node>
+    -->
+    
+    <!--================-->
+    <!-- Start Joystick -->
+    <!--================-->
+    <include file="$(find motion_testing)/launch/joystick.launch">
+        <arg name="manual_deadman" value="$(arg manual_deadman)"/>
+        <arg name="autonomous_deadman" value="$(arg autonomous_deadman)"/>
+        <arg name="timeout" value="$(arg timeout)"/>
+        <arg name="joy_dev" value="$(arg joy_dev)"/>
+    </include>
+    
+    <!--==============================================-->
+    <!-- Start Motion Controllers: Steering, Velocity -->
+    <!--==============================================-->
+    <include file="$(find motion_testing)/launch/motion_control.launch">
+        <arg name="manual_deadman" value="$(arg manual_deadman)"/>
+        <arg name="autonomous_deadman" value="$(arg autonomous_deadman)"/>
+        <arg name="timeout" value="$(arg timeout)"/>
+        <arg name="port_steering" value="$(arg port_steering)"/>
+        <arg name="port_accelerator_encoder" value="$(arg port_accelerator_encoder)"/>
+        <arg name="output_max" value="$(arg output_max)"/>
+        <arg name="output_min" value="$(arg output_min)"/>
+        <arg name="max_angle" value="$(arg max_angle)"/>
+        <arg name="min_angle" value="$(arg min_angle)"/>
+    </include>
+    
+    <!--======================-->
+    <!-- Velocity Controllers -->
+    <!--======================-->
+    <node pkg="robust_navigation" type="velocity_controller_forward" name="velocity_controller_forward" respawn="true" output="screen"/>
+    <node pkg="robust_navigation" type="velocity_controller_reverse" name="velocity_controller_reverse" respawn="true" output="screen"/>
+    <!--
+    <node pkg="sensors" type="velocity_conversion" name="velocity_conversion" output="screen">
+        <param name="use_covariance" value="true"/>
+    </node>
+    -->    
+
+    <!--==========================-->
+    <!-- Maneuver Path Generation -->
+    <!--==========================-->
+    <!-- Required for the '/maneuver_path/optimize_maneuver' service -->
+    <node pkg="grasping" type="maneuver_path.py" name="maneuver_path" output="screen">
+        <remap from="/map" to="/obstacle_map"/>
+        <remap from="/maneuver_path/path1" to="/maneuver_path1"/>
+        <remap from="/maneuver_path/path2" to="/maneuver_path2"/>
+    </node>
+    <node pkg="grasping" type="approach_path" name="approach_path">
+        <remap from="/approach_path/path" to="/approach_path"/>
+    </node>
+    
+    <!--=========================-->
+    <!-- Start Master Controller -->
+    <!--=========================-->
+    <node pkg="motion_testing" name="master_controller" type="master_controller.py" output="screen">
+        <param name="~scale_grasp" value="$(arg clamp_scale)"/>
+        <param name="~scale_movement" value="$(arg clamp_scale)"/>
+        <param name="~debug_test" value="obstacle_avoidance"/>
     </node>
 
 </launch>
