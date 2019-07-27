@@ -137,7 +137,7 @@
     <node pkg="motion_testing" name="master_controller" type="master_controller.py" output="screen">
         <param name="~scale_grasp" value="$(arg clamp_scale)"/>
         <param name="~scale_movement" value="$(arg clamp_scale)"/>
-        <param name="~debug_test" value="obstacle_avoidance"/>
+        <param name="~debug_test" value="maneuver"/>
     </node>
 
 </launch>
