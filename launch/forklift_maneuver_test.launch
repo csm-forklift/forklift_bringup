@@ -38,6 +38,7 @@
     <!-- Lidars -->
     <!-- Needs to run the 'segmented' version of the lidar launch file so that
          points are published as fast as possible -->
+    
     <include file="$(find ouster_ros)/launch/lidar0_segment.launch" />
     <node pkg="mapping" type="lidar_merge_node" name="lidar_merge_node" respawn="true">
         <param name="~num_scans" value="31"/>
@@ -48,28 +49,40 @@
         <remap from="~filtered_points" to="/back_lidar_points"/>
     </node>
     
+    
     <!--===========================-->
     <!-- Cartographer Localization -->
     <!--===========================-->
     <node pkg="forklift_bringup" name="localization_startup" type="localization_startup.sh" output="screen"/>
+    <!-- Map Rescaling -->
+    <node pkg="grasping" name="map_scale" type="map_scale.py" output="screen">
+        <param name="~rescale_factor" value="0.05"/>
+        <remap from="~input_map" to="/map"/>
+        <remap from="~scaled_map" to="/scaled_map"/>
+    </node>
 
     <!--=============================-->
     <!-- Mapping and Path Generation -->
     <!--=============================-->
+    
     <node pkg="tf" type="static_transform_publisher" name="map_broadcaster"
-        args="0 0 0 0 0 0 1 world map 50" />
-    <include file="$(find mapping)/launch/forklift_obstacle_map_test.launch" />
+        args="0 0 0 0 0 0 1 world map 50"/>
+    <include file="$(find mapping)/launch/forklift_obstacle_map_test.launch"/>
     
     <node pkg="robust_navigation" type="planner_node" name="planner_node" respawn="true">
         <remap from="/path" to="/obstacle_avoidance_path"/>
         <remap from="/map" to="/obstacle_map"/>
     </node>
     
+    
     <!-- DEBUG: Create test map -->
     <!--
-    <node pkg="motion_testing" type="test_map_generator.py" name="test_map_generator">
-        <remap from="/test_map_generator/map" to="/obstacle_map"/>
+    <node pkg="motion_testing" type="test_map_generator.py" name="test_map_generator" output="screen">
+        <remap from="/test_map_generator/target" to="/roll/pose"/>
+        <remap from="~map" to="/obstacle_map"/>
     </node>
+    <node pkg="tf" type="static_transform_publisher" name="base_link_publisher"
+        args="0 0 0 0 0 0 1 odom base_link 100"/>
     -->
     
     <!--================-->
@@ -100,8 +113,8 @@
     <!--======================-->
     <!-- Velocity Controllers -->
     <!--======================-->
-    <node pkg="robust_navigation" type="velocity_controller_forward" name="velocity_controller_forward" respawn="true" output="screen"/>
-    <node pkg="robust_navigation" type="velocity_controller_reverse" name="velocity_controller_reverse" respawn="true" output="screen">
+    <node pkg="robust_navigation" type="velocity_controller_forward" name="velocity_controller_forward" respawn="true"/>
+    <node pkg="robust_navigation" type="velocity_controller_reverse" name="velocity_controller_reverse" respawn="true">
 		<param name="heading_gain" value="1.0"/>
 		<param name="cte_gain" value="0.1"/>
 		<param name="derivative_heading_gain" value="1.0"/>
@@ -112,7 +125,7 @@
 		<param name="goal_tolerance" value="0.3"/>
 		<param name="maximum_linear_velocity" value="0.25"/>
 	</node>
-    <!--
+    <!-- Only run this if not using 'localization_velocity_imu.launch' on the Pi
     <node pkg="sensors" type="velocity_conversion" name="velocity_conversion" output="screen">
         <param name="use_covariance" value="true"/>
     </node>
@@ -123,9 +136,9 @@
     <!--==========================-->
     <!-- Required for the '/maneuver_path/optimize_maneuver' service -->
     <node pkg="grasping" type="maneuver_path.py" name="maneuver_path" output="screen">
-        <remap from="/map" to="/obstacle_map"/>
-        <remap from="/maneuver_path/path1" to="/maneuver_path1"/>
-        <remap from="/maneuver_path/path2" to="/maneuver_path2"/>
+        <remap from="/map" to="/scaled_map"/>
+        <remap from="/maneuver_path/path1_gear" to="/maneuver_path1_gear"/>
+        <remap from="/maneuver_path/path2_gear" to="/maneuver_path2_gear"/>
     </node>
     <node pkg="grasping" type="approach_path" name="approach_path">
         <remap from="/approach_path/path" to="/approach_path"/>
