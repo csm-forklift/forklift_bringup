@@ -4,7 +4,7 @@
     <!--==========================-->
     <!-- Arguments and Parameters -->
     <!--==========================-->
-    <!-- Generan -->
+    <!-- General -->
     <arg name="debug" default="false"/>
     <arg name="port_steering" default="/dev/ttyACM0"/>
     <arg name="port_accelerator_encoder" default="/dev/ttyACM1"/>
@@ -20,6 +20,9 @@
     <arg name="max_angle" default="1.0472"/> <!-- 60deg -->
     <arg name="min_angle" default="-1.0472"/>
     
+    <!-- Reset "goal_bool" at the start of each launch file -->
+    <param name="goal_bool" value="false"/>
+
     <!--==================-->
     <!-- Setup Transforms -->
     <!--==================-->
@@ -60,13 +63,18 @@
         <remap from="~input_map" to="/map"/>
         <remap from="~scaled_map" to="/scaled_map"/>
     </node>
+    <node pkg="tf" type="static_transform_publisher" name="baselink_broadcaster"
+        args="0 0 0 0 0 0 1 odom base_link 50"/>
 
     <!--=============================-->
     <!-- Mapping and Path Generation -->
     <!--=============================-->
-    
+    <!--
     <node pkg="tf" type="static_transform_publisher" name="map_broadcaster"
         args="0 0 0 0 0 0 1 world map 50"/>
+    -->
+    <node pkg="tf" type="static_transform_publisher" name="world_broadcaster"
+        args="0 0 0 0 0 0 1 odom world 50"/>
     <include file="$(find mapping)/launch/forklift_obstacle_map_test.launch"/>
     
     <node pkg="robust_navigation" type="planner_node" name="planner_node" respawn="true">
@@ -114,14 +122,14 @@
     <!-- Velocity Controllers -->
     <!--======================-->
     <node pkg="robust_navigation" type="velocity_controller_forward" name="velocity_controller_forward" respawn="true"/>
-    <node pkg="robust_navigation" type="velocity_controller_reverse" name="velocity_controller_reverse" respawn="true">
+    <node pkg="robust_navigation" type="velocity_controller_reverse" name="velocity_controller_reverse" respawn="true" output="screen">
 		<param name="heading_gain" value="1.0"/>
 		<param name="cte_gain" value="0.1"/>
 		<param name="derivative_heading_gain" value="1.0"/>
 		<param name="derivative_cte_gain" value="0.1"/>
 		<param name="cross_track_error_deadband" value="0.125"/>
 		<param name="min_delta_time" value="0.1"/>
-		<param name="num_of_segments_ahead" value="25"/>
+		<param name="num_of_segments_ahead" value="10"/>
 		<param name="goal_tolerance" value="0.3"/>
 		<param name="maximum_linear_velocity" value="0.25"/>
 	</node>

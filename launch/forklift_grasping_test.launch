@@ -19,11 +19,12 @@
     <!-- Grasping Control Parameters -->
     <arg name="debug_grasping" default="true"/>
     <arg name="port_clamp" default="/dev/ttyACM2"/>
+    <arg name="roll_radius" default="0.37"/>
     <arg name="clamp_scale" default="0.5"/>
     <arg name="target_x" default="3.6"/>
     <arg name="target_y" default="0.0"/>
     <arg name="target_frame" default="/odom"/>
-    <arg name="grasp_angle" default="0.7854"/>
+    <arg name="grasp_angle" default="1.1"/>
     <arg name="grasp_plate_offset_x" default="1.37"/>
     <arg name="grasp_plate_offset_y" default="-0.52"/>
     <arg name="angle_tolerance" default="0.01"/>
@@ -58,11 +59,18 @@
     <!-- Needs to run the 'segmented' version of the lidar launch file so that
          points are published as fast as possible -->
     <include file="$(find ouster_ros)/launch/lidar0_segment.launch"/>
+    <node pkg="mapping" type="lidar_merge_node" name="lidar_merge_node" respawn="true">
+        <param name="~num_scans" value="31"/>
+        <remap from="~segmented_scan" to="/os1_node2/points"/>
+    </node>
     <include file="$(find ouster_ros)/launch/lidar1.launch">
         <arg name="dnsmasq" value="false"/>
     </include>
     <!-- Filters point cloud to only view rear 180 deg -->
-    <node pkg="ouster_ros" type="lidar_filter_node" name ="lidar_filter_node" respawn = "true"/>
+    <node pkg="ouster_ros" type="lidar_angle" name ="lidar_angle" respawn = "true">
+        <remap from="~input_points" to="/lidar_merge_node/single_scan"/>
+        <remap from="~filtered_points" to="/back_lidar_points"/>
+    </node>
     
     <!--===========================-->
     <!-- Cartographer Localization -->
@@ -113,6 +121,7 @@
     <include file="$(find grasping)/launch/grasp_control.launch">
         <arg name="debug" value="$(arg debug_grasping)"/>
         <arg name="port_clamp" value="$(arg port_clamp)"/>
+        <arg name="roll_radius" value="$(arg roll_radius)"/>
         <arg name="clamp_scale" value="$(arg clamp_scale)"/>
         <arg name="target_x" value="$(arg target_x)"/>
         <arg name="target_y" value="$(arg target_y)"/>
@@ -121,7 +130,7 @@
         <arg name="angle_tolerance" value="$(arg angle_tolerance)"/>
         <arg name="K_angle" value="$(arg K_angle)"/>
         <arg name="K_linear" value="$(arg K_linear)"/>
-        <arg name="max_velocity" value="$(arg max_velocity)"/>
+        <arg name="max_velocity" value="0.1"/>
         <arg name="grasp_plate_offset_x" value="$(arg grasp_plate_offset_x)"/>
         <arg name="grasp_plate_offset_y" value="$(arg grasp_plate_offset_y)"/>
         <arg name="approach_offset" value="$(arg approach_offset)"/>
