@@ -19,19 +19,19 @@
     <!-- Grasping Control Parameters -->
     <arg name="debug_grasping" default="true"/>
     <arg name="port_clamp" default="/dev/ttyACM2"/>
-    <arg name="roll_radius" default="0.37"/>
+    <arg name="roll_radius" default="0.296"/>
     <arg name="clamp_scale" default="0.5"/>
     <arg name="target_x" default="3.6"/>
     <arg name="target_y" default="0.0"/>
     <arg name="target_frame" default="/odom"/>
-    <arg name="grasp_angle" default="1.1"/>
+    <arg name="grasp_angle" default="0.5"/>
     <arg name="grasp_plate_offset_x" default="1.37"/>
     <arg name="grasp_plate_offset_y" default="-0.52"/>
     <arg name="angle_tolerance" default="0.01"/>
-    <arg name="K_angle" default="1.0"/>
+    <arg name="K_angle" default="2.0"/>
     <arg name="K_linear" default="1.0"/>
-    <arg name="max_velocity" default="0.25"/>
-    <arg name="approach_offset" default="3.0"/>
+    <arg name="max_approach_velocity" default="0.10"/>
+    <arg name="approach_offset" default="4.0"/>
     <arg name="approach_tolerance" default="0.001"/>
     <arg name="backout_distance" default="1.0"/>
     <!-- Cylinder Detection Parameters -->
@@ -102,6 +102,23 @@
         <arg name="port_accelerator_encoder" value="$(arg port_accelerator_encoder)"/>
     </include>
     
+    <!--======================-->
+    <!-- Velocity Controllers -->
+    <!--======================-->
+    <!--
+    <node pkg="robust_navigation" type="velocity_controller" name="velocity_controller" respawn="true" output="screen">
+		<param name="heading_gain" value="1.0"/>
+		<param name="cte_gain" value="0.1"/>
+		<param name="derivative_heading_gain" value="1.0"/>
+		<param name="derivative_cte_gain" value="0.1"/>
+		<param name="cross_track_error_deadband" value="0.125"/>
+		<param name="min_delta_time" value="0.1"/>
+		<param name="num_of_segments_ahead" value="25"/>
+		<param name="goal_tolerance" value="0.3"/>
+		<param name="maximum_linear_velocity" value="0.25"/>
+	</node>
+    -->
+    
     <!--==========================-->
     <!-- Maneuver Path Generation -->
     <!--==========================-->
@@ -130,7 +147,7 @@
         <arg name="angle_tolerance" value="$(arg angle_tolerance)"/>
         <arg name="K_angle" value="$(arg K_angle)"/>
         <arg name="K_linear" value="$(arg K_linear)"/>
-        <arg name="max_velocity" value="0.1"/>
+        <arg name="max_velocity" value="$(arg max_approach_velocity)"/>
         <arg name="grasp_plate_offset_x" value="$(arg grasp_plate_offset_x)"/>
         <arg name="grasp_plate_offset_y" value="$(arg grasp_plate_offset_y)"/>
         <arg name="approach_offset" value="$(arg approach_offset)"/>
