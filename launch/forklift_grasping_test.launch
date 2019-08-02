@@ -18,6 +18,7 @@
     <arg name="joy_dev" default="/dev/input/js0"/>
     <!-- Grasping Control Parameters -->
     <arg name="debug_grasping" default="true"/>
+    <arg name="use_clamp_arduino" default="false"/>
     <arg name="port_clamp" default="/dev/ttyACM2"/>
     <arg name="roll_radius" default="0.296"/>
     <arg name="clamp_scale_movement" default="0.60"/>
@@ -38,14 +39,14 @@
     <!-- Cylinder Detection Parameters -->
     <arg name="sensor_frame" default="/lidar1_link"/>
     <arg name="point_cloud_topic" default="/os1_node1/points"/>
-    
+
     <!--==================-->
     <!-- Setup Transforms -->
     <!--==================-->
     <include file="$(find setup_tf)/launch/setup_tf.launch">
         <arg name="debug" value="$(arg debug_setup_tf)"/>
     </include>
-    
+
     <!--===============-->
     <!-- Start Sensors -->
     <!--===============-->
@@ -55,7 +56,7 @@
           1) $ sudo slcan_add.sh (this starts the canbus reader)
           2) $ roslaunch sensors localization_velocity_imu.launch (reads imu and
                canbus data)
-    --> 
+    -->
     <!-- Lidars -->
     <!-- Needs to run the 'segmented' version of the lidar launch file so that
          points are published as fast as possible -->
@@ -72,7 +73,7 @@
         <remap from="~input_points" to="/lidar_merge_node/single_scan"/>
         <remap from="~filtered_points" to="/back_lidar_points"/>
     </node>
-    
+
     <!--===========================-->
     <!-- Cartographer Localization -->
     <!--===========================-->
@@ -80,7 +81,7 @@
     <!--
     <node pkg="tf" type="static_transform_publisher" name="odom_broadcaster"
         args="0 0 0 0 0 0 1 odom base_link 50" />
-    -->    
+    -->
 
     <!--================-->
     <!-- Start Joystick -->
@@ -91,7 +92,7 @@
         <arg name="timeout" value="$(arg timeout)"/>
         <arg name="joy_dev" value="$(arg joy_dev)"/>
     </include>
-    
+
     <!--==============================================-->
     <!-- Start Motion Controllers: Steering, Velocity -->
     <!--==============================================-->
@@ -102,7 +103,7 @@
         <arg name="port_steering" value="$(arg port_steering)"/>
         <arg name="port_accelerator_encoder" value="$(arg port_accelerator_encoder)"/>
     </include>
-    
+
     <!--======================-->
     <!-- Velocity Controllers -->
     <!--======================-->
@@ -119,7 +120,7 @@
 		<param name="maximum_linear_velocity" value="0.25"/>
 	</node>
     -->
-    
+
     <!--==========================-->
     <!-- Maneuver Path Generation -->
     <!--==========================-->
@@ -132,12 +133,13 @@
     <node pkg="grasping" type="approach_path" name="approach_path">
         <remap from="/approach_path/path" to="/approach_path"/>
     </node>
-    
+
     <!--============================-->
     <!-- Start Grasping Controllers -->
     <!--============================-->
     <include file="$(find grasping)/launch/grasp_control.launch">
         <arg name="debug" value="$(arg debug_grasping)"/>
+        <arg name="use_clamp_arduino" value="$(arg use_clamp_arduino)"/>
         <arg name="port_clamp" value="$(arg port_clamp)"/>
         <arg name="roll_radius" value="$(arg roll_radius)"/>
         <arg name="clamp_scale_movement" value="$(arg clamp_scale_movement)"/>
@@ -161,7 +163,7 @@
         <arg name="sensor_frame" value="$(arg sensor_frame)"/>
         <arg name="point_cloud_topic" value="$(arg point_cloud_topic)"/>
     </include>
-    
+
     <!--=========================-->
     <!-- Start Master Controller -->
     <!--=========================-->
