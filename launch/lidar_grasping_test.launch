@@ -20,8 +20,7 @@
     <arg name="debug_grasping" default="true"/>
     <arg name="port_clamp" default="/dev/ttyACM2"/>
     <arg name="roll_radius" default="0.296"/>
-    <arg name="clamp_scale_movement" default="0.60"/>
-    <arg name="clamp_scale_grasp" default="0.52"/>
+    <arg name="clamp_scale" default="0.5"/>
     <arg name="target_x" default="3.6"/>
     <arg name="target_y" default="0.0"/>
     <arg name="target_frame" default="/odom"/>
@@ -30,9 +29,9 @@
     <arg name="grasp_plate_offset_y" default="-0.52"/>
     <arg name="angle_tolerance" default="0.01"/>
     <arg name="K_angle" default="2.0"/>
-    <arg name="K_linear" default="0.8"/>
+    <arg name="K_linear" default="1.0"/>
     <arg name="max_approach_velocity" default="0.10"/>
-    <arg name="approach_offset" default="5.0"/>
+    <arg name="approach_offset" default="4.0"/>
     <arg name="approach_tolerance" default="0.001"/>
     <arg name="backout_distance" default="1.0"/>
     <!-- Cylinder Detection Parameters -->
@@ -57,30 +56,18 @@
                canbus data)
     --> 
     <!-- Lidars -->
-    <!-- Needs to run the 'segmented' version of the lidar launch file so that
-         points are published as fast as possible -->
-    <include file="$(find ouster_ros)/launch/lidar0_segment.launch"/>
-    <node pkg="mapping" type="lidar_merge_node" name="lidar_merge_node" respawn="true">
-        <param name="~num_scans" value="31"/>
-        <remap from="~segmented_scan" to="/os1_node2/points"/>
-    </node>
     <include file="$(find ouster_ros)/launch/lidar1.launch">
         <arg name="dnsmasq" value="false"/>
     </include>
-    <!-- Filters point cloud to only view rear 180 deg -->
-    <node pkg="ouster_ros" type="lidar_angle" name ="lidar_angle" respawn = "true">
-        <remap from="~input_points" to="/lidar_merge_node/single_scan"/>
-        <remap from="~filtered_points" to="/back_lidar_points"/>
-    </node>
     
     <!--===========================-->
     <!-- Cartographer Localization -->
     <!--===========================-->
-    <node pkg="forklift_bringup" name="localization_startup" type="localization_startup.sh" output="screen"/>
     <!--
+    <node pkg="forklift_bringup" name="localization_startup" type="localization_startup.sh" output="screen"/>
+    -->
     <node pkg="tf" type="static_transform_publisher" name="odom_broadcaster"
-        args="0 0 0 0 0 0 1 odom base_link 50" />
-    -->    
+        args="0 0 0 0 0 0 1 odom base_link 50" />   
 
     <!--================-->
     <!-- Start Joystick -->
@@ -95,6 +82,7 @@
     <!--==============================================-->
     <!-- Start Motion Controllers: Steering, Velocity -->
     <!--==============================================-->
+    <!--
     <include file="$(find motion_testing)/launch/motion_control.launch">
         <arg name="manual_deadman" value="$(arg manual_deadman)"/>
         <arg name="autonomous_deadman" value="$(arg autonomous_deadman)"/>
@@ -102,6 +90,7 @@
         <arg name="port_steering" value="$(arg port_steering)"/>
         <arg name="port_accelerator_encoder" value="$(arg port_accelerator_encoder)"/>
     </include>
+    -->
     
     <!--======================-->
     <!-- Velocity Controllers -->
@@ -140,8 +129,7 @@
         <arg name="debug" value="$(arg debug_grasping)"/>
         <arg name="port_clamp" value="$(arg port_clamp)"/>
         <arg name="roll_radius" value="$(arg roll_radius)"/>
-        <arg name="clamp_scale_movement" value="$(arg clamp_scale_movement)"/>
-        <arg name="clamp_scale_grasp" value="$(arg clamp_scale_grasp)"/>
+        <arg name="clamp_scale" value="$(arg clamp_scale)"/>
         <arg name="target_x" value="$(arg target_x)"/>
         <arg name="target_y" value="$(arg target_y)"/>
         <arg name="target_frame" value="$(arg target_frame)"/>
@@ -166,10 +154,9 @@
     <!-- Start Master Controller -->
     <!--=========================-->
     <node pkg="motion_testing" name="master_controller" type="master_controller.py" output="screen">
-        <param name="~scale_grasp" value="$(arg clamp_scale_grasp)"/>
-        <param name="~scale_movement" value="$(arg clamp_scale_movement)"/>
+        <param name="~scale_grasp" value="$(arg clamp_scale)"/>
+        <param name="~scale_movement" value="$(arg clamp_scale)"/>
         <param name="~debug_test" value="grasp"/>
-        <param name="~roll_approach_radius" value="$(arg approach_offset)"/>
     </node>
 
 </launch>

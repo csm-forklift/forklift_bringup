@@ -19,7 +19,9 @@
     <arg name="output_min" default="15"/>
     <arg name="max_angle" default="1.0472"/> <!-- 60deg -->
     <arg name="min_angle" default="-1.0472"/>
-    
+    <!-- Reset goal bool -->
+    <param name="/goal_bool" value="false"/>
+
     <!--==================-->
     <!-- Setup Transforms -->
     <!--==================-->
