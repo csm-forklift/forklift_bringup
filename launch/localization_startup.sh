@@ -19,9 +19,9 @@ sleep 2
 
 rosservice call /finish_trajectory "trajectory_id: 1"
 # Starting point for demo
-rosrun cartographer_ros cartographer_start_trajectory -configuration_directory '/home/csm/cartographer_latest/install_isolated/share/cartographer_ros/configuration_files' -configuration_basename 'realtime_2d.lua' -initial_pose '{to_trajectory_id = 0,relative_pose = {translation={4, 16, 0},rotation = {0.0, 0.0, 1.571}},timestamp = 0}' > /dev/null &
+#rosrun cartographer_ros cartographer_start_trajectory -configuration_directory '/home/csm/cartographer_latest/install_isolated/share/cartographer_ros/configuration_files' -configuration_basename 'realtime_2d.lua' -initial_pose '{to_trajectory_id = 0,relative_pose = {translation={4, 16, 0},rotation = {0.0, 0.0, 1.571}},timestamp = 0}' > /dev/null &
 # Test starting point
-#rosrun cartographer_ros cartographer_start_trajectory -configuration_directory '/home/csm/cartographer_latest/install_isolated/share/cartographer_ros/configuration_files' -configuration_basename 'realtime_2d.lua' -initial_pose '{to_trajectory_id = 0,relative_pose = {translation={5, 14.5, 0},rotation = {0.0, 0.0, -1.571}}, timestamp = 0}' &
+rosrun cartographer_ros cartographer_start_trajectory -configuration_directory '/home/csm/cartographer_latest/install_isolated/share/cartographer_ros/configuration_files' -configuration_basename 'realtime_2d_turtlebot.lua' -initial_pose '{to_trajectory_id = 0,relative_pose = {translation={3.5, 14, 0},rotation = {0.0, 0.0, -1.5}}, timestamp = 0}' &
 #{translation={-1.9, 0, 0},rotation = {0.0, 0.0, 3.14159265359}}
 
 # Store background PID for rosrun command

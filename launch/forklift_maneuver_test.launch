@@ -47,25 +47,26 @@
     <!-- Lidars -->
     <!-- Needs to run the 'segmented' version of the lidar launch file so that
          points are published as fast as possible -->
+    <!--
     <include file="$(find ouster_ros)/launch/lidar0_segment.launch"/>
     <node pkg="mapping" type="lidar_merge_node" name="lidar_merge_node" respawn="true">
         <param name="~num_scans" value="32"/>
         <remap from="~segmented_scan" to="/os1_node2/points"/>
     </node>
+    -->
     <!-- Filters point cloud to only view rear 180 deg -->
+    <!--
     <node pkg="ouster_ros" type="lidar_angle" name="lidar_angle" respawn="true">
         <remap from="~input_points" to="/lidar_merge_node/single_scan"/>
-        <!--remap from="~input_points" to="/os1_node2/points"/>-->
         <remap from="~filtered_points" to="/back_lidar_points"/>
     </node>
-
-    <!--
+    -->
+    
     <include file="$(find ouster_ros)/launch/lidar0.launch"/>
     <node pkg="ouster_ros" type="lidar_angle" name="lidar_angle" respawn="true">
         <remap from="~input_points" to="/os1_node2/points"/>
         <remap from="~filtered_points" to="/back_lidar_points"/>
     </node>
-    -->
 
     <!--===========================-->
     <!-- Cartographer Localization -->
@@ -90,7 +91,7 @@
         args="0 0 0 0 0 0 1 world map 50"/>
     -->
     <node pkg="tf" type="static_transform_publisher" name="world_broadcaster"
-        args="0 0 0 0 0 0 1 odom world 30"/>
+        args="0 0 0 0 0 0 1 odom world 50"/>
     <include file="$(find mapping)/launch/forklift_obstacle_map_test.launch"/>
 
     <node pkg="robust_navigation" type="planner_node" name="planner_node" respawn="true">
