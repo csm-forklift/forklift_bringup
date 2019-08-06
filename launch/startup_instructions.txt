@@ -1,0 +1,41 @@
+These are the instructions for running the system including setup and commands.
+
+Date: 2019-08-02
+
+==============
+Hardware Check
+==============
+-computers
+-limit switches
+-lidars
+-network routing
+-> IP addresses to be used: NUC:192.168.0.1, PI:192.168.0.2, OTHER:192.168.0.3
+-power plugs
+-files to check (~/.bashrc, make sure the ROS_MASTER_URI and ROS_IP variables are set correctly, write out the lines of code you use in your script to make this easier)
+
+============
+Run Commands
+============
+>First 'ssh' into the NUC.
+other:~$ ssh csm@192.168.0.1
+
+>Begin a roscore
+csm:~$ roscore
+
+>SSH into the PI through the NUC
+other:~$ ssh csm@192.168.0.1
+csm:~$ ssh pi@192.168.0.2
+
+>Start the canbus reader
+(make sure the slcan_add.sh and slcan_remove.sh files are placed in '/usr/local/bin' for easy access)
+plug in the USB for the canbus reader
+pi:~$ sudo slcan_add.sh
+
+>Change the lidar settings
+csm:~$ nc os1-991837000025 7501
+set_config_param window_rejection_enable 1
+reinitialize
+
+csm:~$ nc os1-991838000693
+set_config_param window_rejection_enable 1
+reinitialize

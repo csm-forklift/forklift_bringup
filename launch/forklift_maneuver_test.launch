@@ -6,12 +6,16 @@
     <!--==========================-->
     <!-- General -->
     <arg name="debug" default="false"/>
-    <arg name="port_steering" default="/dev/ttyACM0"/>
-    <arg name="port_accelerator_encoder" default="/dev/ttyACM1"/>
-    <arg name="clamp_scale" default="0.5"/>
+    <arg name="clamp_scale_grasp" default="0.5"/>
+    <arg name="clamp_scale_movement" default="0.6"/>
     <arg name="manual_deadman" default="4"/>
     <arg name="autonomous_deadman" default="5"/>
     <arg name="timeout" default="1.0"/> <!-- seconds -->
+    <!-- Transforms -->
+    <arg name="debug_setup_tf" default="$(arg debug)"/>
+    <!-- Arduino Ports -->
+    <arg name="port_steering" default="/dev/ttyACM0"/>
+    <arg name="port_accelerator_encoder" default="/dev/ttyACM1"/>
     <!-- Joystick -->
     <arg name="joy_dev" default="/dev/input/js0"/>
     <!-- Velocity Controller -->
@@ -19,15 +23,17 @@
     <arg name="output_min" default="15"/>
     <arg name="max_angle" default="1.0472"/> <!-- 60deg -->
     <arg name="min_angle" default="-1.0472"/>
-    
+
     <!-- Reset "goal_bool" at the start of each launch file -->
     <param name="goal_bool" value="false"/>
 
     <!--==================-->
     <!-- Setup Transforms -->
     <!--==================-->
-    <include file="$(find setup_tf)/launch/setup_tf.launch" />
-    
+    <include file="$(find setup_tf)/launch/setup_tf.launch">
+        <arg name="debug" value="$(arg debug_setup_tf)"/>
+    </include>
+
     <!--===============-->
     <!-- Start Sensors -->
     <!--===============-->
@@ -37,22 +43,30 @@
           1) $ sudo slcan_add.sh (this starts the canbus reader)
           2) $ roslaunch sensors localization_velocity_imu.launch (reads imu and
                canbus data)
-    --> 
+    -->
     <!-- Lidars -->
     <!-- Needs to run the 'segmented' version of the lidar launch file so that
          points are published as fast as possible -->
-    
-    <include file="$(find ouster_ros)/launch/lidar0_segment.launch" />
+    <include file="$(find ouster_ros)/launch/lidar0_segment.launch"/>
     <node pkg="mapping" type="lidar_merge_node" name="lidar_merge_node" respawn="true">
-        <param name="~num_scans" value="31"/>
+        <param name="~num_scans" value="32"/>
         <remap from="~segmented_scan" to="/os1_node2/points"/>
     </node>
-    <node pkg="ouster_ros" type="lidar_angle" name="lidar_angle" respawn = "true">
+    <!-- Filters point cloud to only view rear 180 deg -->
+    <node pkg="ouster_ros" type="lidar_angle" name="lidar_angle" respawn="true">
         <remap from="~input_points" to="/lidar_merge_node/single_scan"/>
+        <!--remap from="~input_points" to="/os1_node2/points"/>-->
         <remap from="~filtered_points" to="/back_lidar_points"/>
     </node>
-    
-    
+
+    <!--
+    <include file="$(find ouster_ros)/launch/lidar0.launch"/>
+    <node pkg="ouster_ros" type="lidar_angle" name="lidar_angle" respawn="true">
+        <remap from="~input_points" to="/os1_node2/points"/>
+        <remap from="~filtered_points" to="/back_lidar_points"/>
+    </node>
+    -->
+
     <!--===========================-->
     <!-- Cartographer Localization -->
     <!--===========================-->
@@ -63,8 +77,10 @@
         <remap from="~input_map" to="/map"/>
         <remap from="~scaled_map" to="/scaled_map"/>
     </node>
+    <!--
     <node pkg="tf" type="static_transform_publisher" name="baselink_broadcaster"
         args="0 0 0 0 0 0 1 odom base_link 50"/>
+    -->
 
     <!--=============================-->
     <!-- Mapping and Path Generation -->
@@ -74,15 +90,15 @@
         args="0 0 0 0 0 0 1 world map 50"/>
     -->
     <node pkg="tf" type="static_transform_publisher" name="world_broadcaster"
-        args="0 0 0 0 0 0 1 odom world 50"/>
+        args="0 0 0 0 0 0 1 odom world 30"/>
     <include file="$(find mapping)/launch/forklift_obstacle_map_test.launch"/>
-    
+
     <node pkg="robust_navigation" type="planner_node" name="planner_node" respawn="true">
         <remap from="/path" to="/obstacle_avoidance_path"/>
         <remap from="/map" to="/obstacle_map"/>
     </node>
-    
-    
+
+
     <!-- DEBUG: Create test map -->
     <!--
     <node pkg="motion_testing" type="test_map_generator.py" name="test_map_generator" output="screen">
@@ -92,7 +108,7 @@
     <node pkg="tf" type="static_transform_publisher" name="base_link_publisher"
         args="0 0 0 0 0 0 1 odom base_link 100"/>
     -->
-    
+
     <!--================-->
     <!-- Start Joystick -->
     <!--================-->
@@ -102,7 +118,7 @@
         <arg name="timeout" value="$(arg timeout)"/>
         <arg name="joy_dev" value="$(arg joy_dev)"/>
     </include>
-    
+
     <!--==============================================-->
     <!-- Start Motion Controllers: Steering, Velocity -->
     <!--==============================================-->
@@ -117,12 +133,11 @@
         <arg name="max_angle" value="$(arg max_angle)"/>
         <arg name="min_angle" value="$(arg min_angle)"/>
     </include>
-    
+
     <!--======================-->
     <!-- Velocity Controllers -->
     <!--======================-->
-    <node pkg="robust_navigation" type="velocity_controller_forward" name="velocity_controller_forward" respawn="true"/>
-    <node pkg="robust_navigation" type="velocity_controller_reverse" name="velocity_controller_reverse" respawn="true" output="screen">
+    <node pkg="robust_navigation" type="velocity_controller" name="velocity_controller" respawn="true" output="screen">
 		<param name="heading_gain" value="1.0"/>
 		<param name="cte_gain" value="0.1"/>
 		<param name="derivative_heading_gain" value="1.0"/>
@@ -137,7 +152,7 @@
     <node pkg="sensors" type="velocity_conversion" name="velocity_conversion" output="screen">
         <param name="use_covariance" value="true"/>
     </node>
-    -->    
+    -->
 
     <!--==========================-->
     <!-- Maneuver Path Generation -->
@@ -151,13 +166,13 @@
     <node pkg="grasping" type="approach_path" name="approach_path">
         <remap from="/approach_path/path" to="/approach_path"/>
     </node>
-    
+
     <!--=========================-->
     <!-- Start Master Controller -->
     <!--=========================-->
     <node pkg="motion_testing" name="master_controller" type="master_controller.py" output="screen">
-        <param name="~scale_grasp" value="$(arg clamp_scale)"/>
-        <param name="~scale_movement" value="$(arg clamp_scale)"/>
+        <param name="~scale_grasp" value="$(arg clamp_scale_grasp)"/>
+        <param name="~scale_movement" value="$(arg clamp_scale_movement)"/>
         <param name="~debug_test" value="maneuver"/>
     </node>
 

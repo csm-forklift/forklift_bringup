@@ -62,17 +62,18 @@
          points are published as fast as possible -->
     <include file="$(find ouster_ros)/launch/lidar0_segment.launch"/>
     <node pkg="mapping" type="lidar_merge_node" name="lidar_merge_node" respawn="true">
-        <param name="~num_scans" value="31"/>
+        <param name="~num_scans" value="32"/>
         <remap from="~segmented_scan" to="/os1_node2/points"/>
+    </node>
+    <!-- Filters point cloud to only view rear 180 deg -->
+    <node pkg="ouster_ros" type="lidar_angle" name="lidar_angle" respawn="true">
+        <!--<remap from="~input_points" to="/lidar_merge_node/single_scan"/>-->
+        <remap from="~input_points" to="/os1_node2/points"/>
+        <remap from="~filtered_points" to="/back_lidar_points"/>
     </node>
     <include file="$(find ouster_ros)/launch/lidar1.launch">
         <arg name="dnsmasq" value="false"/>
     </include>
-    <!-- Filters point cloud to only view rear 180 deg -->
-    <node pkg="ouster_ros" type="lidar_angle" name ="lidar_angle" respawn = "true">
-        <remap from="~input_points" to="/lidar_merge_node/single_scan"/>
-        <remap from="~filtered_points" to="/back_lidar_points"/>
-    </node>
 
     <!--===========================-->
     <!-- Cartographer Localization -->
