@@ -1,0 +1,33 @@
+<!-- Used for testing motion control for the obstacle avoidance path -->
+<launch>
+
+    <!--==========================-->
+    <!-- Arguments and Parameters -->
+    <!--==========================-->
+
+
+    <!--=============-->
+    <!-- Setup Lidar -->
+    <!--=============-->
+    <include file="$(find ouster_ros)/launch/lidar0.launch"/>
+    <node pkg="ouster_ros" type="lidar_angle" name="lidar_angle" respawn="true">
+        <remap from="~input_points" to="/os1_node2/points"/>
+        <remap from="~filtered_points" to="/back_lidar_points"/>
+    </node>
+
+    <!--===========================-->
+    <!-- Cartographer Localization -->
+    <!--===========================-->
+    <node pkg="forklift_bringup" name="localization_startup" type="localization_startup.sh" output="screen"/>
+    <!-- Map Rescaling -->
+    <node pkg="grasping" name="map_scale" type="map_scale.py" output="screen">
+        <param name="~rescale_factor" value="0.05"/>
+        <remap from="~input_map" to="/map"/>
+        <remap from="~scaled_map" to="/scaled_map"/>
+    </node>
+    <!--
+    <node pkg="tf" type="static_transform_publisher" name="baselink_broadcaster"
+        args="0 0 0 0 0 0 1 odom base_link 50"/>
+    -->
+
+</launch>
