@@ -154,6 +154,13 @@
         <remap from="/map" to="/scaled_map"/>
         <remap from="/maneuver_path/path1_gear" to="/maneuver_path1_gear"/>
         <remap from="/maneuver_path/path2_gear" to="/maneuver_path2_gear"/>
+        <param name="start_x_s" value="10"/>
+        <param name="start_y_s" value="-3"/>
+        <param name="start_theta_s" value="0.2"/>
+        <param name="start_r_1" value="-0.4"/>
+        <param name="start_alpha_1" value="-1.6"/>
+        <param name="start_r_2" value="1.0"/>
+        <param name="start_alpha_2" value="1.4"/>
     </node>
     <node pkg="grasping" type="approach_path" name="approach_path">
         <remap from="/approach_path/path" to="/approach_path"/>
@@ -166,6 +173,7 @@
         <param name="~scale_grasp" value="$(arg clamp_scale_grasp)"/>
         <param name="~scale_movement" value="$(arg clamp_scale_movement)"/>
         <param name="~debug_test" value="maneuver"/>
+        <param name="~maneuver_velocity" value="0.1"/>
     </node>
 
 </launch>
