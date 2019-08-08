@@ -1,0 +1,9 @@
+<launch>
+
+    <!-- Start Cartographer -->
+    <include file="$(find forklift_bringup)/launch/forklift_cartographer.launch"/>
+
+    <!-- Start Clamp/Velocity Nodes -->
+    <include file="$(find sensors)/launch/clamp_velocity.launch"/>
+
+</launch>
