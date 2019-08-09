@@ -23,7 +23,7 @@ NEG_PI_DIV_2=`echo "scale=9; $NEG_PI/2" | bc`
 #===== Official Starting Point - DO NOT CHANGE! =====#
 #STARTING_POINT="translation={3.3, 14.5, 0},rotation={0.0, 0.0, `echo "scale=9; $NEG_PI_DIV_2+0.1" | bc`}"
 #====================================================#
-STARTING_POINT="translation={-3, -3, 0},rotation={0.0, 0.0, 0.5}"
+STARTING_POINT="translation={-4.5, 2.0, 0},rotation={0.0, 0.0, `echo "scale=9; (-3.0/4.0)*${PI}+0.15" | bc`}"
 
 rosservice call /finish_trajectory "trajectory_id: 1"
 # Starting point for demo
