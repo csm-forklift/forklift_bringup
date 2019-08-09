@@ -1,0 +1,244 @@
+<!-- Used for testing motion control for the obstacle avoidance path -->
+<launch>
+
+    <!--==========================-->
+    <!-- Arguments and Parameters -->
+    <!--==========================-->
+    <!-- General -->
+    <arg name="debug" default="false"/>
+    <arg name="manual_deadman" default="4"/>
+    <arg name="autonomous_deadman" default="5"/>
+    <arg name="timeout" default="1.0"/> <!-- seconds -->
+    <!-- Transforms -->
+    <arg name="debug_setup_tf" default="$(arg debug)"/>
+    <!-- Arduino Ports -->
+    <arg name="port_steering" default="/dev/ttyACM0"/>
+    <arg name="port_accelerator_encoder" default="/dev/ttyACM1"/>
+    <!-- Joystick -->
+    <arg name="joy_dev" default="/dev/input/js0"/>
+    <!-- Velocity Controller -->
+    <arg name="output_max" default="200"/> <!-- see accelerator arduino file -->
+    <arg name="output_min" default="15"/>
+    <arg name="max_angle" default="1.0472"/> <!-- 60deg -->
+    <arg name="min_angle" default="-1.0472"/>
+    <!-- Grasping Control Parameters -->
+    <arg name="debug_grasping" default="true"/>
+    <arg name="use_clamp_arduino" default="false"/>
+    <arg name="port_clamp" default="/dev/ttyACM2"/>
+    <arg name="roll_radius" default="0.296"/>
+    <arg name="clamp_scale_movement" default="0.60"/>
+    <arg name="clamp_scale_grasp" default="0.52"/>
+    <arg name="target_x" default="3.6"/>
+    <arg name="target_y" default="0.0"/>
+    <arg name="target_frame" default="/odom"/>
+    <arg name="grasp_angle" default="0.5"/>
+    <arg name="grasp_plate_offset_x" default="1.37"/>
+    <arg name="grasp_plate_offset_y" default="-0.52"/>
+    <arg name="angle_tolerance" default="0.01"/>
+    <arg name="K_angle" default="2.0"/>
+    <arg name="K_linear" default="0.8"/>
+    <arg name="max_approach_velocity" default="0.10"/>
+    <arg name="approach_offset" default="4.0"/>
+    <arg name="approach_tolerance" default="0.001"/>
+    <arg name="backout_distance" default="1.0"/>
+    <!-- Cylinder Detection Parameters -->
+    <arg name="sensor_frame" default="/lidar1_link"/>
+    <arg name="point_cloud_topic" default="/os1_node1/points"/>
+
+    <!-- Reset "goal_bool" at the start of each launch file -->
+    <param name="goal_bool" value="false"/>
+
+    <!-- Delete /master_controller/master_operation_mode parameter -->
+    <rosparam command="delete" param="/master_controller/master_operation_mode"/>
+
+    <!--==================-->
+    <!-- Setup Transforms -->
+    <!--==================-->
+    <include file="$(find setup_tf)/launch/setup_tf.launch">
+        <arg name="debug" value="$(arg debug_setup_tf)"/>
+    </include>
+
+    <!--===============-->
+    <!-- Start Sensors -->
+    <!--===============-->
+    <!--
+    NOTE: the canbus velocity reading and IMU data should be collected
+          through the Raspberry Pi by running the following commands:
+          1) $ sudo slcan_add.sh (this starts the canbus reader)
+          2) $ roslaunch sensors localization_velocity_imu.launch (reads imu and
+               canbus data)
+    -->
+    <!-- Lidars -->
+    <!-- Needs to run the 'segmented' version of the lidar launch file so that
+         points are published as fast as possible -->
+    <!--
+    <include file="$(find ouster_ros)/launch/lidar0.launch"/>
+    <node pkg="ouster_ros" type="lidar_angle" name="lidar_angle" respawn="true">
+        <remap from="~input_points" to="/os1_node2/points"/>
+        <remap from="~filtered_points" to="/back_lidar_points"/>
+    </node>
+    -->
+
+    <!--===========================-->
+    <!-- Cartographer Localization -->
+    <!--===========================-->
+    <!--
+    <node pkg="forklift_bringup" name="localization_startup" type="localization_startup.sh" output="screen"/>
+    -->
+    <!-- Map Rescaling -->
+    <!--
+    <node pkg="grasping" name="map_scale" type="map_scale.py" output="screen">
+        <param name="~rescale_factor" value="0.05"/>
+        <remap from="~input_map" to="/map"/>
+        <remap from="~scaled_map" to="/scaled_map"/>
+    </node>
+    -->
+
+    <node pkg="tf" type="static_transform_publisher" name="baselink_broadcaster"
+        args="0 0 0 0 0 0 1 odom base_link 50"/>
+
+
+    <!--=============================-->
+    <!-- Mapping and Path Generation -->
+    <!--=============================-->
+    <!--
+    <node pkg="tf" type="static_transform_publisher" name="map_broadcaster"
+        args="0 0 0 0 0 0 1 world map 50"/>
+    -->
+    <node pkg="tf" type="static_transform_publisher" name="world_broadcaster"
+        args="0 0 0 0 0 0 1 odom world 50"/>
+    <include file="$(find mapping)/launch/forklift_obstacle_map_test.launch"/>
+
+    <node pkg="robust_navigation" type="planner_node" name="planner_node" respawn="true">
+        <remap from="/path" to="/obstacle_avoidance_path"/>
+        <remap from="/map" to="/obstacle_map"/>
+    </node>
+
+
+    <!-- DEBUG: Create test map -->
+    <!--
+    <node pkg="motion_testing" type="test_map_generator.py" name="test_map_generator" output="screen">
+        <remap from="/test_map_generator/target" to="/roll/pose"/>
+        <remap from="~map" to="/obstacle_map"/>
+    </node>
+    <node pkg="tf" type="static_transform_publisher" name="base_link_publisher"
+        args="0 0 0 0 0 0 1 odom base_link 100"/>
+    -->
+
+    <!--================-->
+    <!-- Start Joystick -->
+    <!--================-->
+    <include file="$(find motion_testing)/launch/joystick.launch">
+        <arg name="manual_deadman" value="$(arg manual_deadman)"/>
+        <arg name="autonomous_deadman" value="$(arg autonomous_deadman)"/>
+        <arg name="timeout" value="$(arg timeout)"/>
+        <arg name="joy_dev" value="$(arg joy_dev)"/>
+    </include>
+
+    <!--==============================================-->
+    <!-- Start Motion Controllers: Steering, Velocity -->
+    <!--==============================================-->
+    <include file="$(find motion_testing)/launch/motion_control.launch">
+        <arg name="manual_deadman" value="$(arg manual_deadman)"/>
+        <arg name="autonomous_deadman" value="$(arg autonomous_deadman)"/>
+        <arg name="timeout" value="$(arg timeout)"/>
+        <arg name="port_steering" value="$(arg port_steering)"/>
+        <arg name="port_accelerator_encoder" value="$(arg port_accelerator_encoder)"/>
+        <arg name="output_max" value="$(arg output_max)"/>
+        <arg name="output_min" value="$(arg output_min)"/>
+        <arg name="max_angle" value="$(arg max_angle)"/>
+        <arg name="min_angle" value="$(arg min_angle)"/>
+    </include>
+
+    <!--======================-->
+    <!-- Velocity Controllers -->
+    <!--======================-->
+    <node pkg="robust_navigation" type="velocity_controller" name="velocity_controller" respawn="true" output="screen">
+		<param name="heading_gain" value="1.0"/>
+		<param name="cte_gain" value="0.2"/>
+		<param name="derivative_heading_gain" value="1.0"/>
+		<param name="derivative_cte_gain" value="0.1"/>
+		<param name="cross_track_error_deadband" value="0.125"/>
+		<param name="min_delta_time" value="0.1"/>
+		<param name="num_of_segments_ahead" value="10"/>
+		<param name="goal_tolerance" value="0.5"/>
+		<param name="maximum_linear_velocity" value="0.25"/>
+	</node>
+    <!-- Only run this if not using 'localization_velocity_imu.launch' on the Pi
+    <node pkg="sensors" type="velocity_conversion" name="velocity_conversion" output="screen">
+        <param name="use_covariance" value="true"/>
+    </node>
+    -->
+
+    <!--==========================-->
+    <!-- Maneuver Path Generation -->
+    <!--==========================-->
+    <!-- Required for the '/maneuver_path/optimize_maneuver' service -->
+    <node pkg="grasping" type="maneuver_path.py" name="maneuver_path">
+        <remap from="/map" to="/scaled_map"/>
+        <remap from="/maneuver_path/path1_gear" to="/maneuver_path1_gear"/>
+        <remap from="/maneuver_path/path2_gear" to="/maneuver_path2_gear"/>
+        <!-- Real starting point
+        <param name="start_x_s" value="11"/>
+        <param name="start_y_s" value="-7"/>
+        <param name="start_theta_s" value="0.2"/>
+        <param name="start_r_1" value="-0.4"/>
+        <param name="start_alpha_1" value="-1.6"/>
+        <param name="start_r_2" value="1.0"/>
+        <param name="start_alpha_2" value="1.4"/>
+        -->
+        <!-- Maneuver starting point -->
+        <param name="start_x_s" value="0"/>
+        <param name="start_y_s" value="0"/>
+        <param name="start_theta_s" value="0"/>
+        <param name="start_r_1" value="-1.5"/>
+        <param name="start_alpha_1" value="-1.6"/>
+        <param name="start_r_2" value="1.0"/>
+        <param name="start_alpha_2" value="1.4"/>
+    </node>
+    <node pkg="grasping" type="approach_path" name="approach_path" output="screen">
+        <remap from="/approach_path/path" to="/approach_path"/>
+    </node>
+
+    <!--============================-->
+    <!-- Start Grasping Controllers -->
+    <!--============================-->
+    <include file="$(find grasping)/launch/grasp_control.launch">
+        <arg name="debug" value="$(arg debug_grasping)"/>
+        <arg name="use_clamp_arduino" value="$(arg use_clamp_arduino)"/>
+        <arg name="port_clamp" value="$(arg port_clamp)"/>
+        <arg name="roll_radius" value="$(arg roll_radius)"/>
+        <arg name="clamp_scale_movement" value="$(arg clamp_scale_movement)"/>
+        <arg name="clamp_scale_grasp" value="$(arg clamp_scale_grasp)"/>
+        <arg name="target_x" value="$(arg target_x)"/>
+        <arg name="target_y" value="$(arg target_y)"/>
+        <arg name="target_frame" value="$(arg target_frame)"/>
+        <arg name="grasp_angle" value="$(arg grasp_angle)"/>
+        <arg name="angle_tolerance" value="$(arg angle_tolerance)"/>
+        <arg name="K_angle" value="$(arg K_angle)"/>
+        <arg name="K_linear" value="$(arg K_linear)"/>
+        <arg name="max_velocity" value="$(arg max_approach_velocity)"/>
+        <arg name="grasp_plate_offset_x" value="$(arg grasp_plate_offset_x)"/>
+        <arg name="grasp_plate_offset_y" value="$(arg grasp_plate_offset_y)"/>
+        <arg name="approach_offset" value="$(arg approach_offset)"/>
+        <arg name="approach_tolerance" value="$(arg approach_tolerance)"/>
+        <arg name="backout_distance" value="$(arg backout_distance)"/>
+        <arg name="manual_deadman" value="$(arg manual_deadman)"/>
+        <arg name="autonomous_deadman" value="$(arg autonomous_deadman)"/>
+        <arg name="timeout" value="$(arg timeout)"/>
+        <arg name="sensor_frame" value="$(arg sensor_frame)"/>
+        <arg name="point_cloud_topic" value="$(arg point_cloud_topic)"/>
+    </include>
+
+    <!--=========================-->
+    <!-- Start Master Controller -->
+    <!--=========================-->
+    <node pkg="motion_testing" name="master_controller" type="master_controller.py" respawn="true" output="screen">
+        <param name="~scale_grasp" value="$(arg clamp_scale_grasp)"/>
+        <param name="~scale_movement" value="$(arg clamp_scale_movement)"/>
+        <param name="~debug_test" value="man_to_grasp"/>
+        <param name="~maneuver_velocity" value="0.1"/>
+        <param name="~approach_offset" value="$(arg approach_offset)"/>
+    </node>
+
+</launch>

@@ -20,7 +20,10 @@ PI=3.141592654
 NEG_PI=-3.141592654
 PI_DIV_2=`echo "scale=9; $PI/2" | bc` # note the 'angled' apostrophe ` not '
 NEG_PI_DIV_2=`echo "scale=9; $NEG_PI/2" | bc`
-STARTING_POINT="translation={3.3, 14.5, 0},rotation={0.0, 0.0, `echo "scale=9; $NEG_PI_DIV_2+0.1" | bc`}"
+#===== Official Starting Point - DO NOT CHANGE! =====#
+#STARTING_POINT="translation={3.3, 14.5, 0},rotation={0.0, 0.0, `echo "scale=9; $NEG_PI_DIV_2+0.1" | bc`}"
+#====================================================#
+STARTING_POINT="translation={-3, -3, 0},rotation={0.0, 0.0, 0.5}"
 
 rosservice call /finish_trajectory "trajectory_id: 1"
 # Starting point for demo
