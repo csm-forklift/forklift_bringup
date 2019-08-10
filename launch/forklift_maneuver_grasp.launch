@@ -175,7 +175,7 @@
     <!-- Maneuver Path Generation -->
     <!--==========================-->
     <!-- Required for the '/maneuver_path/optimize_maneuver' service -->
-    <node pkg="grasping" type="maneuver_path.py" name="maneuver_path">
+    <node pkg="grasping" type="maneuver_path2.py" name="maneuver_path">
         <remap from="/map" to="/scaled_map"/>
         <remap from="/maneuver_path/path1_gear" to="/maneuver_path1_gear"/>
         <remap from="/maneuver_path/path2_gear" to="/maneuver_path2_gear"/>
@@ -196,6 +196,8 @@
         <param name="start_alpha_1" value="-0.1"/>
         <param name="start_r_2" value="1.0"/>
         <param name="start_alpha_2" value="0.1"/>
+        <param name="approach_path_offset" value="8.0"/>
+        <param name="optimization_method" value="1"/>
     </node>
     <node pkg="grasping" type="approach_path" name="approach_path" output="screen">
         <remap from="/approach_path/path" to="/approach_path"/>
