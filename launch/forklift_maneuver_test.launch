@@ -6,7 +6,7 @@
     <!--==========================-->
     <!-- General -->
     <arg name="debug" default="false"/>
-    <arg name="clamp_scale_grasp" default="0.5"/>
+    <arg name="clamp_scale_grasp" default="0.52"/>
     <arg name="clamp_scale_movement" default="0.6"/>
     <arg name="manual_deadman" default="4"/>
     <arg name="autonomous_deadman" default="5"/>
@@ -158,6 +158,7 @@
         <remap from="/map" to="/scaled_map"/>
         <remap from="/maneuver_path/path1_gear" to="/maneuver_path1_gear"/>
         <remap from="/maneuver_path/path2_gear" to="/maneuver_path2_gear"/>
+        <param name="approach_path_offset" value="8.0"/>
         <param name="optimization_method" value="1"/>
         <param name="start_x_s" value="11"/>
         <param name="start_y_s" value="-4"/>

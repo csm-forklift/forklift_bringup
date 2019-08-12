@@ -16,6 +16,11 @@
     <arg name="port_accelerator_encoder" default="/dev/ttyACM1"/>
     <!-- Joystick -->
     <arg name="joy_dev" default="/dev/input/js0"/>
+    <!-- Velocity Controller -->
+    <arg name="output_max" default="200"/> <!-- see accelerator arduino file -->
+    <arg name="output_min" default="15"/>
+    <arg name="max_angle" default="1.0472"/> <!-- 60deg -->
+    <arg name="min_angle" default="-1.0472"/>
     <!-- Grasping Control Parameters -->
     <arg name="debug_grasping" default="true"/>
     <arg name="use_clamp_arduino" default="false"/>
@@ -60,25 +65,23 @@
     <!-- Lidars -->
     <!-- Needs to run the 'segmented' version of the lidar launch file so that
          points are published as fast as possible -->
-    <include file="$(find ouster_ros)/launch/lidar0_segment.launch"/>
-    <node pkg="mapping" type="lidar_merge_node" name="lidar_merge_node" respawn="true">
-        <param name="~num_scans" value="32"/>
-        <remap from="~segmented_scan" to="/os1_node2/points"/>
-    </node>
-    <!-- Filters point cloud to only view rear 180 deg -->
+    <!--
+    <include file="$(find ouster_ros)/launch/lidar0.launch"/>
     <node pkg="ouster_ros" type="lidar_angle" name="lidar_angle" respawn="true">
-        <!--<remap from="~input_points" to="/lidar_merge_node/single_scan"/>-->
         <remap from="~input_points" to="/os1_node2/points"/>
         <remap from="~filtered_points" to="/back_lidar_points"/>
     </node>
+    -->
     <include file="$(find ouster_ros)/launch/lidar1.launch">
-        <arg name="dnsmasq" value="false"/>
+        <arg name="dnsmasq" value="true"/>
     </include>
 
     <!--===========================-->
     <!-- Cartographer Localization -->
     <!--===========================-->
+    <!--
     <node pkg="forklift_bringup" name="localization_startup" type="localization_startup.sh" output="screen"/>
+    -->
     <!--
     <node pkg="tf" type="static_transform_publisher" name="odom_broadcaster"
         args="0 0 0 0 0 0 1 odom base_link 50" />
@@ -103,6 +106,10 @@
         <arg name="timeout" value="$(arg timeout)"/>
         <arg name="port_steering" value="$(arg port_steering)"/>
         <arg name="port_accelerator_encoder" value="$(arg port_accelerator_encoder)"/>
+        <arg name="output_max" value="$(arg output_max)"/>
+        <arg name="output_min" value="$(arg output_min)"/>
+        <arg name="max_angle" value="$(arg max_angle)"/>
+        <arg name="min_angle" value="$(arg min_angle)"/>
     </include>
 
     <!--======================-->
@@ -126,10 +133,18 @@
     <!-- Maneuver Path Generation -->
     <!--==========================-->
     <!-- Required for the '/maneuver_path/optimize_maneuver' service -->
-    <node pkg="grasping" type="maneuver_path.py" name="maneuver_path" output="screen">
+    <node pkg="grasping" type="maneuver_path2.py" name="maneuver_path" output="screen">
         <remap from="/map" to="/obstacle_map"/>
-        <remap from="/maneuver_path/path1" to="/maneuver_path1"/>
-        <remap from="/maneuver_path/path2" to="/maneuver_path2"/>
+        <remap from="/maneuver_path/path1_gear" to="/maneuver_path1_gear"/>
+        <remap from="/maneuver_path/path2_gear" to="/maneuver_path2_gear"/>
+        <!-- Real starting point -->
+        <param name="start_x_s" value="10"/>
+        <param name="start_y_s" value="-8"/>
+        <param name="start_theta_s" value="0.2"/>
+        <param name="start_r_1" value="-0.4"/>
+        <param name="start_alpha_1" value="-1.6"/>
+        <param name="start_r_2" value="1.0"/>
+        <param name="start_alpha_2" value="1.4"/>
     </node>
     <node pkg="grasping" type="approach_path" name="approach_path">
         <remap from="/approach_path/path" to="/approach_path"/>
@@ -168,11 +183,12 @@
     <!--=========================-->
     <!-- Start Master Controller -->
     <!--=========================-->
-    <node pkg="motion_testing" name="master_controller" type="master_controller.py" output="screen">
+    <node pkg="motion_testing" name="master_controller" type="master_controller.py" respawn="true" output="screen">
         <param name="~scale_grasp" value="$(arg clamp_scale_grasp)"/>
         <param name="~scale_movement" value="$(arg clamp_scale_movement)"/>
         <param name="~debug_test" value="grasp"/>
-        <param name="~roll_approach_radius" value="$(arg approach_offset)"/>
+        <param name="~maneuver_velocity" value="0.1"/>
+        <param name="~approach_offset" value="$(arg approach_offset)"/>
     </node>
 
 </launch>
