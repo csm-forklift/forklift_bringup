@@ -36,6 +36,6 @@ csm:~$ nc os1-991837000025 7501
 set_config_param window_rejection_enable 1
 reinitialize
 
-csm:~$ nc os1-991838000693
+csm:~$ nc os1-991838000693 7501
 set_config_param window_rejection_enable 1
 reinitialize

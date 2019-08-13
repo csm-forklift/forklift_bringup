@@ -16,6 +16,7 @@
     <arg name="port_accelerator_encoder" default="/dev/ttyACM1"/>
     <!-- Joystick -->
     <arg name="joy_dev" default="/dev/input/js0"/>
+    <arg name="joy_clamp_scale" default="0.75"/>
     <!-- Velocity Controller -->
     <arg name="output_max" default="200"/> <!-- see accelerator arduino file -->
     <arg name="output_min" default="15"/>
@@ -136,6 +137,7 @@
         <arg name="autonomous_deadman" value="$(arg autonomous_deadman)"/>
         <arg name="timeout" value="$(arg timeout)"/>
         <arg name="joy_dev" value="$(arg joy_dev)"/>
+        <arg name="joy_clamp_scale" value="$(arg joy_clamp_scale)"/>
     </include>
 
     <!--==============================================-->

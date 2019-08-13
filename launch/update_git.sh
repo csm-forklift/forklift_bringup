@@ -2,7 +2,7 @@
 
 # Pulls all of the forklift_ws github repositories
 
-echo "Updaing github repositories"
+echo "Updating github repositories"
 
 cd $HOME/forklift_ws/src/forklift_bringup
 git pull
