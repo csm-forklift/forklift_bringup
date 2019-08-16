@@ -16,6 +16,7 @@
     <arg name="port_accelerator_encoder" default="/dev/ttyACM1"/>
     <!-- Joystick -->
     <arg name="joy_dev" default="/dev/input/js0"/>
+    <arg name="joy_clamp_scale" default="0.75"/>
     <!-- Velocity Controller -->
     <arg name="output_max" default="200"/> <!-- see accelerator arduino file -->
     <arg name="output_min" default="15"/>
@@ -26,7 +27,8 @@
     <arg name="use_clamp_arduino" default="false"/>
     <arg name="port_clamp" default="/dev/ttyACM2"/>
     <arg name="roll_radius" default="0.296"/>
-    <arg name="clamp_scale_movement" default="0.60"/>
+    <arg name="clamp_scale_movement_up" default="0.70"/>
+    <arg name="clamp_scale_movement_down" default="0.65"/>
     <arg name="clamp_scale_grasp" default="0.52"/>
     <arg name="target_x" default="3.6"/>
     <arg name="target_y" default="0.0"/>
@@ -211,7 +213,8 @@
         <arg name="use_clamp_arduino" value="$(arg use_clamp_arduino)"/>
         <arg name="port_clamp" value="$(arg port_clamp)"/>
         <arg name="roll_radius" value="$(arg roll_radius)"/>
-        <arg name="clamp_scale_movement" value="$(arg clamp_scale_movement)"/>
+        <arg name="clamp_scale_movement_up" value="$(arg clamp_scale_movement_up)"/>
+        <arg name="clamp_scale_movement_down" value="$(arg clamp_scale_movement_down)"/>
         <arg name="clamp_scale_grasp" value="$(arg clamp_scale_grasp)"/>
         <arg name="target_x" value="$(arg target_x)"/>
         <arg name="target_y" value="$(arg target_y)"/>
@@ -238,7 +241,8 @@
     <!--=========================-->
     <node pkg="motion_testing" name="master_controller" type="master_controller.py" respawn="true" output="screen">
         <param name="~scale_grasp" value="$(arg clamp_scale_grasp)"/>
-        <param name="~scale_movement" value="$(arg clamp_scale_movement)"/>
+        <param name="~scale_movement_up" value="$(arg clamp_scale_movement_up)"/>
+        <param name="~scale_movement_down" value="$(arg clamp_scale_movement_down)"/>
         <param name="~debug_test" value="man_to_grasp"/>
         <param name="~maneuver_velocity" value="0.1"/>
         <param name="~approach_offset" value="$(arg approach_offset)"/>
