@@ -159,7 +159,7 @@
     <!--======================-->
     <!-- Velocity Controllers -->
     <!--======================-->
-    <node pkg="robust_navigation" type="velocity_controller" name="velocity_controller" respawn="true" output="screen">
+    <node pkg="robust_navigation" type="velocity_controller" name="velocity_controller" respawn="true">
 		<param name="heading_gain" value="1.0"/>
 		<param name="cte_gain" value="0.2"/>
 		<param name="derivative_heading_gain" value="1.0"/>

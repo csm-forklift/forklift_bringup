@@ -156,7 +156,7 @@
     <!--======================-->
     <!-- Velocity Controllers -->
     <!--======================-->
-    <node pkg="robust_navigation" type="velocity_controller" name="velocity_controller" respawn="true" output="screen">
+    <node pkg="robust_navigation" type="velocity_controller" name="velocity_controller" respawn="true">
 		<param name="heading_gain" value="1.0"/>
 		<param name="cte_gain" value="0.2"/>
 		<param name="derivative_heading_gain" value="1.0"/>
@@ -199,7 +199,7 @@
         <param name="start_r_2" value="1.0"/>
         <param name="start_alpha_2" value="0.1"/>
         <param name="approach_path_offset" value="8.0"/>
-        <param name="optimization_method" value="1"/>
+        <param name="optimization_method" value="0"/>
     </node>
     <node pkg="grasping" type="approach_path" name="approach_path" output="screen">
         <remap from="/approach_path/path" to="/approach_path"/>
