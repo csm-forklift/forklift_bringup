@@ -4,6 +4,8 @@
     <!--==========================-->
     <!-- Arguments and Parameters -->
     <!--==========================-->
+    <!-- Constants -->
+    <arg name="pi" value="3.141592653589793"/>
     <!-- General -->
     <arg name="debug" default="false"/>
     <arg name="manual_deadman" default="4"/>
@@ -170,6 +172,7 @@
 		<param name="num_of_segments_ahead" value="10"/>
 		<param name="goal_tolerance" value="0.5"/>
 		<param name="maximum_linear_velocity" value="0.25"/>
+		<param name="current_angle_error_max" value="$(eval 75.0*(arg('pi')/180.0))"/>
 	</node>
     <!-- Only run this if not using 'localization_velocity_imu.launch' on the Pi
     <node pkg="sensors" type="velocity_conversion" name="velocity_conversion" output="screen">
