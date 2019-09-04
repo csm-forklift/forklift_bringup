@@ -4,6 +4,8 @@
     <!--==========================-->
     <!-- Arguments and Parameters -->
     <!--==========================-->
+    <!-- Switch Between Demo 1 and Demo 2 -->
+    <arg name="demo1" default="true"/>
     <!-- Constants -->
     <arg name="pi" value="3.141592653589793"/>
     <!-- General -->
@@ -19,6 +21,8 @@
     <!-- Joystick -->
     <arg name="joy_dev" default="/dev/input/js0"/>
     <arg name="joy_clamp_scale" default="0.75"/>
+    <arg name="pedal_mode" default="velocity"/> <!-- options: velocity, pmw -->
+    <arg name="steering_mode" default="relative"/> <!-- options: relative, absolute -->
     <!-- Velocity Controller -->
     <arg name="output_max" default="200"/> <!-- see accelerator arduino file -->
     <arg name="output_min" default="15"/>
@@ -142,6 +146,8 @@
         <arg name="timeout" value="$(arg timeout)"/>
         <arg name="joy_dev" value="$(arg joy_dev)"/>
         <arg name="joy_clamp_scale" value="$(arg joy_clamp_scale)"/>
+        <arg name="pedal_mode" value="$(arg pedal_mode)"/>
+        <arg name="steering_mode" value="$(arg steering_mode)"/>
     </include>
 
     <!--==============================================-->
@@ -189,16 +195,20 @@
         <remap from="/maneuver_path/path1_gear" to="/maneuver_path1_gear"/>
         <remap from="/maneuver_path/path2_gear" to="/maneuver_path2_gear"/>
         <param name="approach_pose_offset" value="10.0"/>
-        <param name="optimization_method" value="0"/>
+        <param name="optimization_method" value="0"/> <!-- 0: hardcoded, 1: scipy, 2: ipopt -->
         
-        <!-- Real starting point --> 
-        <param name="start_x_s" value="11"/>
-        <param name="start_y_s" value="-9"/>
-        <param name="start_theta_s" value="0.2"/>
-        <param name="start_r_1" value="-0.4"/>
-        <param name="start_alpha_1" value="-1.6"/>
-        <param name="start_r_2" value="1.0"/>
-        <param name="start_alpha_2" value="1.4"/>
+        <!-- Sets the maneuver point for Demo 1 -->
+        <param if="$(arg demo1)" name="start_x_s" value="11"/>
+        <param if="$(arg demo1)" name="start_y_s" value="-9"/>
+        <!-- Uncomment and set 'demo1' to 'true' to use this -->
+        
+        <param name="start_x_s" value="13"/>
+        <param name="start_y_s" value="-4"/>
+        
+
+        <!-- Sets the maneuver point for Demo 2 -->
+        <param unless="$(arg demo1)" name="start_x_s" value="11"/>
+        <param unless="$(arg demo1)" name="start_y_s" value="-1"/>
 
         <!-- Maneuver starting point -->
         <!--
@@ -214,7 +224,7 @@
     <node pkg="grasping" type="approach_path" name="approach_path" output="screen">
         <remap from="/approach_path/path" to="/approach_path"/>
         <!-- Approach path type: 0 = full spline, 1 = no forklift orientation, 2 = straight line -->
-        <param name="/approach_path/path/type" value="0"/>
+        <param name="/approach_path/path/type" value="1"/>
     </node>
 
     <!--============================-->

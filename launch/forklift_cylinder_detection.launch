@@ -1,0 +1,45 @@
+<launch>
+
+    <!--==========================-->
+    <!-- Arguments and Parameters -->
+    <!--==========================-->
+    <arg name="debug" default="false"/>
+    <arg name="roll_radius" default="0.29"/>
+    <arg name="target_x" default="0.0"/>
+    <arg name="target_y" default="0.0"/>
+    <arg name="target_tolerance" default="$(eval arg('roll_radius')*2)"/>
+    <arg name="target_frame" default="/odom"/>
+    <arg name="sensor_frame" default="/lidar1_link"/>
+    <arg name="point_cloud_topic" default="/os1_node1/points"/>
+    <!-- Transforms -->
+    <arg name="debug_setup_tf" default="$(arg debug)"/>
+
+    <!--==================-->
+    <!-- Setup Transforms -->
+    <!--==================-->
+    <include file="$(find setup_tf)/launch/setup_tf.launch">
+        <arg name="debug" value="$(arg debug_setup_tf)"/>
+    </include>
+
+    <!--===============-->
+    <!-- Start Sensors -->
+    <!--===============-->
+    <!-- Lidars -->
+    <include file="$(find ouster_ros)/launch/lidar1.launch">
+        <arg name="dnsmasq" value="true"/>
+    </include>
+
+    <!--====================-->
+    <!-- Cylinder Detection -->
+    <!--====================-->
+    <node pkg="grasping" name="cylinder_detection" type="cylinder_detection_demo" respawn="true" output="screen">
+        <param name="debug" value="$(arg debug)"/>
+        <param name="sensor_frame" value="$(arg sensor_frame)"/>
+        <param name="point_cloud_topic" value="$(arg point_cloud_topic)"/>
+        <param name="target_frame" value="$(arg target_frame)"/>
+        <param name="target_x" value="$(arg target_x)"/>
+        <param name="target_y" value="$(arg target_y)"/>
+        <param name="target_tolerance" value="$(arg target_tolerance)"/>
+    </node>
+
+</launch>
