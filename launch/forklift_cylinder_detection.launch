@@ -3,11 +3,11 @@
     <!--==========================-->
     <!-- Arguments and Parameters -->
     <!--==========================-->
-    <arg name="debug" default="false"/>
+    <arg name="debug" default="true"/>
     <arg name="roll_radius" default="0.29"/>
-    <arg name="target_x" default="0.0"/>
+    <arg name="target_x" default="-5.0"/>
     <arg name="target_y" default="0.0"/>
-    <arg name="target_tolerance" default="$(eval arg('roll_radius')*2)"/>
+    <arg name="target_tolerance" default="$(eval arg('roll_radius')*5)"/>
     <arg name="target_frame" default="/odom"/>
     <arg name="sensor_frame" default="/lidar1_link"/>
     <arg name="point_cloud_topic" default="/os1_node1/points"/>
@@ -41,5 +41,24 @@
         <param name="target_y" value="$(arg target_y)"/>
         <param name="target_tolerance" value="$(arg target_tolerance)"/>
     </node>
+    
+    <!--=================-->
+    <!-- Set Roll Target -->
+    <!--=================-->
+    <node pkg="grasping" name="roll_pose_publish" type="roll_pose_publish">
+        <param name="roll_pose_x" value="-5.0"/>
+        <param name="roll_pose_y" value="0.0"/>
+    </node>
+    
+    <!--==========================-->
+    <!-- Maneuver Path Generation -->
+    <!--==========================-->
+    <!-- Required for the '/maneuver_path/optimize_maneuver' service -->
+    <node pkg="grasping" type="maneuver_path2.py" name="maneuver_path"/>
+    
+    <!--=========================-->
+    <!-- Start Master Controller -->
+    <!--=========================-->
+    <node pkg="motion_testing" name="master_controller" type="master_controller.py" respawn="true"/>
 
 </launch>

@@ -28,6 +28,8 @@
     <arg name="output_min" default="15"/>
     <arg name="max_angle" default="1.0472"/> <!-- 60deg -->
     <arg name="min_angle" default="-1.0472"/>
+    <arg name="max_vel_scale" default="0.12"/> <!-- scales max steering angular velocity -->
+    <arg name="ramp_time_vel" default="4.0"/> <!-- time to ramp steering back to full speed -->
     <!-- Grasping Control Parameters -->
     <arg name="debug_grasping" default="true"/>
     <arg name="use_clamp_arduino" default="false"/>
@@ -154,7 +156,7 @@
     <!--==============================================-->
     <!-- Start Motion Controllers: Steering, Velocity -->
     <!--==============================================-->
-    <include file="$(find motion_testing)/launch/motion_control.launch">
+    <include file="$(find motion_testing)/launch/motion_control_A4988.launch">
         <arg name="manual_deadman" value="$(arg manual_deadman)"/>
         <arg name="autonomous_deadman" value="$(arg autonomous_deadman)"/>
         <arg name="timeout" value="$(arg timeout)"/>
@@ -164,6 +166,8 @@
         <arg name="output_min" value="$(arg output_min)"/>
         <arg name="max_angle" value="$(arg max_angle)"/>
         <arg name="min_angle" value="$(arg min_angle)"/>
+        <arg name="max_vel_scale" value="$(arg max_vel_scale)"/>
+        <arg name="ramp_time_vel" value="$(arg ramp_time_vel)"/>
     </include>
 
     <!--======================-->
@@ -202,10 +206,11 @@
         <param if="$(arg demo1)" name="start_x_s" value="11"/>
         <param if="$(arg demo1)" name="start_y_s" value="-9"/>
         <!-- Uncomment and set 'demo1' to 'true' to use this -->
-        <!--
+        <!-- Obstacle Avoidance Demo Position -->
+
         <param name="start_x_s" value="6"/>
         <param name="start_y_s" value="-3"/>
-        -->
+        
 
         <!-- Sets the maneuver point for Demo 2 -->
         <param unless="$(arg demo1)" name="start_x_s" value="11"/>
