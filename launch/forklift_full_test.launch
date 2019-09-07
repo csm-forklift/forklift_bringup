@@ -5,7 +5,7 @@
     <!-- Arguments and Parameters -->
     <!--==========================-->
     <!-- Switch Between Demo 1 and Demo 2 -->
-    <arg name="demo1" default="true"/>
+    <arg name="demo1" default="false"/>
     <!-- Constants -->
     <arg name="pi" value="3.141592653589793"/>
     <!-- General -->
@@ -208,8 +208,8 @@
         -->
 
         <!-- Sets the maneuver point for Demo 2 -->
-        <param unless="$(arg demo1)" name="start_x_s" value="11"/>
-        <param unless="$(arg demo1)" name="start_y_s" value="-1"/>
+        <param unless="$(arg demo1)" name="start_x_s" value="13"/>
+        <param unless="$(arg demo1)" name="start_y_s" value="0"/>
 
         <!-- Maneuver starting point -->
         <!--

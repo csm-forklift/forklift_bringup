@@ -208,7 +208,7 @@
         <!-- Uncomment and set 'demo1' to 'true' to use this -->
         <!-- Obstacle Avoidance Demo Position -->
 
-        <param name="start_x_s" value="6"/>
+        <param name="start_x_s" value="7"/>
         <param name="start_y_s" value="-3"/>
         
 
