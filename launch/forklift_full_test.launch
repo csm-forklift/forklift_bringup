@@ -46,9 +46,9 @@
     <arg name="grasp_plate_offset_y" default="-0.52"/>
     <arg name="angle_tolerance" default="0.01"/>
     <arg name="K_angle" default="2.0"/>
-    <arg name="K_linear" default="0.8"/>
+    <arg name="K_linear" default="0.1"/>
     <arg name="max_approach_velocity" default="0.10"/>
-    <arg name="approach_offset" default="4.5"/>
+    <arg name="approach_offset" default="6.0"/>
     <arg name="approach_tolerance" default="0.001"/>
     <arg name="backout_distance" default="1.0"/>
     <!-- Cylinder Detection Parameters -->
@@ -178,7 +178,7 @@
 		<param name="min_delta_time" value="0.1"/>
 		<param name="num_of_segments_ahead" value="10"/>
 		<param name="goal_tolerance" value="0.5"/>
-		<param name="maximum_linear_velocity" value="0.25"/>
+		<param name="maximum_linear_velocity" value="0.5"/>
 		<param name="current_angle_error_max" value="$(eval 75.0*(arg('pi')/180.0))"/>
 	</node>
     <!-- Only run this if not using 'localization_velocity_imu.launch' on the Pi
@@ -202,10 +202,10 @@
         <param if="$(arg demo1)" name="start_x_s" value="11"/>
         <param if="$(arg demo1)" name="start_y_s" value="-9"/>
         <!-- Uncomment and set 'demo1' to 'true' to use this -->
-        <!--
-        <param name="start_x_s" value="6"/>
-        <param name="start_y_s" value="-3"/>
-        -->
+        
+        <param name="start_x_s" value="0"/>
+        <param name="start_y_s" value="0"/>
+        
 
         <!-- Sets the maneuver point for Demo 2 -->
         <param unless="$(arg demo1)" name="start_x_s" value="13"/>
@@ -225,7 +225,7 @@
     <node pkg="grasping" type="approach_path" name="approach_path" respawn="true">
         <remap from="/approach_path/path" to="/approach_path"/>
         <!-- Approach path type: 0 = full spline, 1 = no forklift orientation, 2 = straight line -->
-        <param name="/approach_path/path/type" value="1"/>
+        <param name="path/type" value="2"/>
     </node>
 
     <!--============================-->
