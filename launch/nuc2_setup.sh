@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Print out ROS IPs for debugging
-echo "ROS_MASTER_URI: ${ROS_MASTER_URI}"
-echo "ROS_IP: ${ROS_IP}"
+echo "ROS_MASTER_URI: $ROS_MASTER_URI"
+echo "ROS_IP: $ROS_IP"
 
 # Start Canbus reader
 slcan_add.sh

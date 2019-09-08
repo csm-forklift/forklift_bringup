@@ -24,12 +24,12 @@ NEG_PI_DIV_2=`echo "scale=9; $NEG_PI/2" | bc`
 STARTING_POINT="translation={3.3, 14.5, 0},rotation={0.0, 0.0, `echo "scale=9; $NEG_PI_DIV_2+0.1" | bc`}"
 #====================================================#
 #===== Official Demo Point - DO NOT CHANGE! =====#
-#STARTING_POINT="translation={3.3, 0.0, 0.0},rotation={0.0, 0.0, `echo "scale=9; 0.75*$PI" | bc`}"
+#STARTING_POINT="translation={4.8, 1.5, 0.0},rotation={0.0, 0.0, `echo "scale=9; 0.75*$PI+0.03" | bc`}"
 #================================================#
 #----- Starting point for maneuver
-#STARTING_POINT="translation={-4.5, 2.0, 0},rotation={0.0, 0.0, `echo "scale=9; (-3.0/4.0)*${PI}+0.15" | bc`}"
+#STARTING_POINT="translation={5.5, 0.0, 0},rotation={0.0, 0.0, `echo "scale=9; (-1.0/4.0)*${PI}+0.07" | bc`}"
 #----- Starting point for grasping
-#STARTING_POINT="translation={0.0, 5.0, 0.0},rotation={0.0, 0.0, $NEG_PI}"
+#STARTING_POINT="translation={-3.5, -4.0, 0.0},rotation={0.0, 0.0, `echo "scale=9; $NEG_PI_DIV_2+0.0" | bc`}"
 
 rosservice call /finish_trajectory "trajectory_id: 1"
 # Starting point for demo
