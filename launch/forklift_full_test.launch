@@ -5,7 +5,7 @@
     <!-- Arguments and Parameters -->
     <!--==========================-->
     <!-- Switch Between Demo 1 and Demo 2 -->
-    <arg name="demo1" default="false"/>
+    <arg name="demo1" default="true"/>
     <!-- Constants -->
     <arg name="pi" value="3.141592653589793"/>
     <!-- General -->
@@ -23,6 +23,7 @@
     <arg name="joy_clamp_scale" default="0.75"/>
     <arg name="pedal_mode" default="velocity"/> <!-- options: velocity, pmw -->
     <arg name="steering_mode" default="relative"/> <!-- options: relative, absolute -->
+    <arg name="max_joystick_velocity" default="1"/>
     <!-- Velocity Controller -->
     <arg name="output_max" default="200"/> <!-- see accelerator arduino file -->
     <arg name="output_min" default="15"/>
@@ -147,6 +148,7 @@
         <arg name="timeout" value="$(arg timeout)"/>
         <arg name="joy_dev" value="$(arg joy_dev)"/>
         <arg name="joy_clamp_scale" value="$(arg joy_clamp_scale)"/>
+        <arg name="max_velocity" value="$(arg max_joystick_velocity)"/>
         <arg name="pedal_mode" value="$(arg pedal_mode)"/>
         <arg name="steering_mode" value="$(arg steering_mode)"/>
     </include>
@@ -178,7 +180,7 @@
 		<param name="min_delta_time" value="0.1"/>
 		<param name="num_of_segments_ahead" value="10"/>
 		<param name="goal_tolerance" value="0.5"/>
-		<param name="maximum_linear_velocity" value="0.5"/>
+		<param name="maximum_linear_velocity" value="0.3"/>
 		<param name="current_angle_error_max" value="$(eval 75.0*(arg('pi')/180.0))"/>
 	</node>
     <!-- Only run this if not using 'localization_velocity_imu.launch' on the Pi
@@ -202,10 +204,10 @@
         <param if="$(arg demo1)" name="start_x_s" value="11"/>
         <param if="$(arg demo1)" name="start_y_s" value="-9"/>
         <!-- Uncomment and set 'demo1' to 'true' to use this -->
-        
+        <!--
         <param name="start_x_s" value="0"/>
         <param name="start_y_s" value="0"/>
-        
+        -->
 
         <!-- Sets the maneuver point for Demo 2 -->
         <param unless="$(arg demo1)" name="start_x_s" value="13"/>
@@ -225,7 +227,8 @@
     <node pkg="grasping" type="approach_path" name="approach_path" respawn="true">
         <remap from="/approach_path/path" to="/approach_path"/>
         <!-- Approach path type: 0 = full spline, 1 = no forklift orientation, 2 = straight line -->
-        <param name="path/type" value="2"/>
+        <param if="$(arg demo1)" name="path/type" value="1"/>
+        <param unless="$(arg demo1)" name="path/type" value="2"/>
     </node>
 
     <!--============================-->
