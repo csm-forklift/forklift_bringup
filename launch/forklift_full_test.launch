@@ -121,7 +121,7 @@
     -->
     <node pkg="tf" type="static_transform_publisher" name="world_broadcaster"
         args="0 0 0 0 0 0 1 odom world 50"/>
-    <include file="$(find mapping)/launch/forklift_obstacle_map_test.launch"/>
+    <include file="$(find mapping)/launch/forklift_obstacle_map.launch"/>
 
     <node pkg="robust_navigation" type="planner_node" name="planner_node" respawn="true">
         <remap from="/path" to="/obstacle_avoidance_path"/>
@@ -193,7 +193,7 @@
     <!-- Maneuver Path Generation -->
     <!--==========================-->
     <!-- Required for the '/maneuver_path/optimize_maneuver' service -->
-    <node pkg="grasping" type="maneuver_path2.py" name="maneuver_path" output="screen">
+    <node pkg="grasping" type="maneuver_path.py" name="maneuver_path" output="screen">
         <remap from="/map" to="/scaled_map"/>
         <remap from="/maneuver_path/path1_gear" to="/maneuver_path1_gear"/>
         <remap from="/maneuver_path/path2_gear" to="/maneuver_path2_gear"/>
