@@ -32,7 +32,7 @@
     <!--====================-->
     <!-- Cylinder Detection -->
     <!--====================-->
-    <node pkg="grasping" name="cylinder_detection" type="cylinder_detection_demo" respawn="true" output="screen">
+    <node pkg="grasping" name="cylinder_detection" type="cylinder_detection" respawn="true" output="screen">
         <param name="debug" value="$(arg debug)"/>
         <param name="sensor_frame" value="$(arg sensor_frame)"/>
         <param name="point_cloud_topic" value="$(arg point_cloud_topic)"/>
