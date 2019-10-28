@@ -1,4 +1,0 @@
-# Files are saved in whatever directory you run the 'rosbag' command from.
-rosbag record -O [name of file] [topic1] [topic2] ...
-
-rosbag record -O test1 /odom /odom/filtered /camera_pose/pose /astrapro/rgb/image_raw /astrapro/rgb/image_with_markers

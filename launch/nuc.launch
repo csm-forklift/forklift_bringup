@@ -1,4 +1,6 @@
 <launch>
+    <!-- This file is to be launched on the second computer running the 
+        Cartographer code -->
 
     <!-- Start Cartographer -->
     <include file="$(find forklift_bringup)/launch/forklift_cartographer.launch"/>
