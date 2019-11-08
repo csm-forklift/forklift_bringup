@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 # Items to edit for specific situation
-# ~/cartographer_latest/src/cartographer_ros/cartographer_ros/launch/my_robot_2d_localization.launch
-# ~/cartographer_latest/src/cartographer_ros/cartographer_ros/configuration_files/realtime_2d.lua
+# ~/cartographer_ws/src/cartographer_ros/cartographer_ros/launch/my_robot_2d_localization.launch
+# ~/cartographer_ws/src/cartographer_ros/cartographer_ros/configuration_files/realtime_2d.lua
 # remove the output from this file by adding > /dev/null before the '&' symbols at the end of the launch line and the rosrun line.
-source ~/cartographer_latest/devel_isolated/setup.bash
-roslaunch cartographer_ros my_robot_2d_localization2.launch &
+source ~/cartographer_ws/devel_isolated/setup.bash
+roslaunch cartographer_ros forklift_2d_localization.launch &
 
 # Store background PID, which is the cartographer launch above
 bg_pid=$!
@@ -33,9 +33,9 @@ STARTING_POINT="translation={3.3, 14.5, 0},rotation={0.0, 0.0, `echo "scale=9; $
 
 rosservice call /finish_trajectory "trajectory_id: 1"
 # Starting point for demo
-#rosrun cartographer_ros cartographer_start_trajectory -configuration_directory '/home/csm/cartographer_latest/install_isolated/share/cartographer_ros/configuration_files' -configuration_basename 'realtime_2d.lua' -initial_pose '{to_trajectory_id = 0,relative_pose = {translation={4, 16, 0},rotation = {0.0, 0.0, 1.571}},timestamp = 0}' > /dev/null &
+#rosrun cartographer_ros cartographer_start_trajectory -configuration_directory '/home/csm/cartographer_ws/install_isolated/share/cartographer_ros/configuration_files' -configuration_basename 'realtime_2d.lua' -initial_pose '{to_trajectory_id = 0,relative_pose = {translation={4, 16, 0},rotation = {0.0, 0.0, 1.571}},timestamp = 0}' > /dev/null &
 # Test starting point
-rosrun cartographer_ros cartographer_start_trajectory -configuration_directory "$HOME/cartographer_latest/install_isolated/share/cartographer_ros/configuration_files" -configuration_basename "realtime_2d_turtlebot.lua" -initial_pose "{to_trajectory_id = 0,relative_pose = {$STARTING_POINT}, timestamp = 0}" &
+rosrun cartographer_ros cartographer_start_trajectory -configuration_directory "$HOME/cartographer_ws/install_isolated/share/cartographer_ros/configuration_files" -configuration_basename "realtime_2d_forklift.lua" -initial_pose "{to_trajectory_id = 0,relative_pose = {$STARTING_POINT}, timestamp = 0}" &
 # {translation={-1.9, 0, 0},rotation = {0.0, 0.0, 3.14159265359}}
 
 # Store background PID for rosrun command
